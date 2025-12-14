@@ -3,16 +3,18 @@ import Image from 'next/image';
 import parse, { DOMNode, Element } from 'html-react-parser';
 import CarouselDisplay from '@/components/CarouselDisplay';
 
-// Тип для params
+// Тип для params (явное указание)
 type PageParams = { id: string };
 
 type PageProps = {
-  params: PageParams;
+  params: Promise<PageParams>;
 };
 
 export default async function ArticlePage({ params }: PageProps) {
+  // Раскрываем Promise
+  const resolvedParams = await params;
   const article = await prisma.article.findUnique({
-    where: { id: Number(params.id) },
+    where: { id: Number(resolvedParams.id) },
   });
 
   if (!article) return <div>Статья не найдена</div>;
@@ -28,10 +30,9 @@ export default async function ArticlePage({ params }: PageProps) {
           images = JSON.parse(dataImages);
         }
       } catch (e) {
-        console.error('Ошибка парсинга JSON для карусели:', e);
+        console.error("Ошибка парсинга JSON для карусели:", e);
         return null;
       }
-
       return (
         <CarouselDisplay
           images={images}
@@ -47,21 +48,21 @@ export default async function ArticlePage({ params }: PageProps) {
     <article>
       <h1 className="text-6xl font-bold mb-20 text-center">{article.title}</h1>
 
-		  {article.imageUrl ? (
-			  <div className="relative w-full h-[500px]">
-				  <Image
-					  src={article.imageUrl}
-					  alt={article.title}
-					  fill
-					  sizes="100vw"
-					  className="object-cover"
-				  />
-			  </div>
+      {article.imageUrl ? (
+        <div className="relative w-full h-[500px]">
+          <Image
+            src={article.imageUrl}
+            alt={article.title}
+            fill
+            sizes="100vw"
+            className="object-cover"
+          />
+        </div>
 
-		  ) : null}
+      ) : null}
 
 
-		  <div className="mx-auto max-w-6xl prose">{parsedContent}</div>
+      <div className="mx-auto max-w-6xl prose">{parsedContent}</div>
     </article>
   );
 }
