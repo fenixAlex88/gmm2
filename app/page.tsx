@@ -3,7 +3,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 async function getArticles(): Promise<IArticle[]> {
-  const res = await fetch(`http://localhost:3000/api/articles`, { cache: 'no-store' });
+  const res = await fetch('/api/articles', {
+    headers: { 'Content-Type': 'application/json' },
+  });
 
   if (!res.ok) {
     throw new Error('Ошибка загрузки статей');

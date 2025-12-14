@@ -1,24 +1,31 @@
 import { prisma } from '@/lib/prisma';
 import Image from 'next/image';
-import parse, { DOMNode } from 'html-react-parser'; // 1. Импорт парсера
-import CarouselDisplay from '@/components/CarouselDisplay'; // 2. Импорт компонента Карусели
+import parse, { DOMNode, Element } from 'html-react-parser';
+import CarouselDisplay from '@/components/CarouselDisplay';
 
-export default async function ArticlePage({ params }: { params: { id: string } }) {
+// Тип для params (явное указание)
+type PageParams = { id: string };
+
+type PageProps = {
+	params: Promise<PageParams>;
+};
+
+export default async function ArticlePage({ params }: PageProps) {
+	// Раскрываем Promise
+	const resolvedParams = await params;
 	const article = await prisma.article.findUnique({
-		where: { id: Number(params.id) },
+		where: { id: Number(resolvedParams.id) },
 	});
 
 	if (!article) return <div>Статья не найдена</div>;
 
-	// 3. Создаем функцию для замены HTML-узлов на React-компоненты
 	const replace = (node: DOMNode) => {
-		if (node.type === 'tag' && node.name === 'div' && node.attribs['data-type'] === 'carousel') {
+		if (node instanceof Element && node.name === 'div' && node.attribs['data-type'] === 'carousel') {
 			const dataImages = node.attribs['data-images'];
 			const dataInterval = node.attribs['interval'];
 
 			let images: string[] = [];
 			try {
-				// Пытаемся распарсить JSON-строку из data-images
 				if (dataImages) {
 					images = JSON.parse(dataImages);
 				}
@@ -27,7 +34,6 @@ export default async function ArticlePage({ params }: { params: { id: string } }
 				return null;
 			}
 
-			// Заменяем div на React-компонент CarouselDisplay
 			return (
 				<CarouselDisplay
 					images={images}
@@ -37,13 +43,12 @@ export default async function ArticlePage({ params }: { params: { id: string } }
 		}
 	};
 
-	// 4. Парсим HTML, используя функцию замены
 	const parsedContent = parse(article.contentHtml, { replace });
 
 	return (
 		<article className="max-w-6xl mx-auto">
 			<h1 className="text-6xl font-bold mb-20 text-center">{article.title}</h1>
-			{/* Оставшийся код для главного изображения */}
+
 			{article.imageUrl ? (
 				<Image
 					src={article.imageUrl}
@@ -62,10 +67,7 @@ export default async function ArticlePage({ params }: { params: { id: string } }
 				/>
 			)}
 
-			{/* 5. Используем распарсенный контент вместо dangerouslySetInnerHTML */}
-			<div className="prose">
-				{parsedContent}
-			</div>
+			<div className="prose">{parsedContent}</div>
 		</article>
 	);
 }
