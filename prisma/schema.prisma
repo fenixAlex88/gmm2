@@ -1,0 +1,27 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Article {
+  id          Int      @id @default(autoincrement())
+  title       String
+  imageUrl    String?
+  contentHtml String
+  sectionId   Int
+  section     Section  @relation(fields: [sectionId], references: [id])
+
+  @@map("articles")
+}
+
+model Section {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  articles Article[]
+
+  @@map("sections")
+}

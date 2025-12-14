@@ -34,7 +34,7 @@ export default function SideMenu() {
 	return (
 		<>
 			{/* Desktop: фиксированное меню слева */}
-			<aside className="hidden lg:flex flex-col w-64 bg-white text-gray-800 border-r h-screen p-4 fixed left-0 top-0">
+			<aside className="hidden lg:flex flex-col w-64 bg-white text-gray-800 border-r h-screen p-4 fixed left-0 top-0 shadow-2xl">
 				<h2 className="text-xl font-bold mb-6">Меню</h2>
 				<nav className="flex flex-col space-y-3">
 					{LINKS.map((link) =>
@@ -65,7 +65,7 @@ export default function SideMenu() {
 			</aside>
 
 			{/* Tablet: узкая полоска с иконками */}
-			<aside className="hidden md:flex lg:hidden flex-col w-16 bg-white border-r h-screen p-4 fixed left-0 top-0 items-center">
+			<aside className="hidden md:flex lg:hidden flex-col w-16 bg-white border-r h-screen p-4 fixed left-0 top-0 items-center shadow-xl">
 				<nav className="flex flex-col space-y-6">
 					{LINKS.map(
 						(link) =>
@@ -79,7 +79,7 @@ export default function SideMenu() {
 			</aside>
 
 			{/* Mobile: бургер */}
-			<div className="md:hidden">
+			<div className="md:hidden shadow-2xl">
 				<button
 					onClick={() => setIsOpen(true)}
 					className="p-2 text-white bg-[#800000] fixed top-4 left-4 z-50 rounded-md"

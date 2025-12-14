@@ -2,20 +2,65 @@
 @tailwind components;
 @tailwind utilities;
 
+/* * 1. Базовые CSS-переменные
+* Используются для определения цветов, которые затем "подключаются" в Tailwind
+*/
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Основные цвета для light mode */
+  --color-background: #ffffff;
+  --color-foreground: #171717;
+
+  /*
+  * Добавьте цвета, если вы используете их в компонентах,
+  * чтобы затем связать их с системой Tailwind ниже
+  */
+  --color-primary: #800000; /* Например, из Header bg-[#800000] */
+  --color-secondary: #9c3333; /* Например, из MobileSidebarMenu hover */
 }
 
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --color-background: #0a0a0a;
+    --color-foreground: #ededed;
+  }
+} */
+
+
+/* * 2. @layer base - Базовые стили и подключение CSS-переменных к Tailwind
+* Эти стили применяются ко всему проекту.
+*/
+@layer base {
+  
+  /* Связываем переменные CSS с системой цветов Tailwind */
+  :root {
+    --background: var(--color-background);
+    --foreground: var(--color-foreground);
+    /* Пример, как можно использовать: bg-primary, text-primary */
+    --primary: var(--color-primary); 
+    --secondary: var(--color-secondary);
+  }
+
+  /* * Ваши пользовательские стили для заголовков
+  * Используйте @apply, чтобы использовать утилиты Tailwind
+  */
+  h1 {
+    @apply text-2xl font-bold;
+  }
+  h2 {
+    @apply text-xl font-bold;
+  }
+  h3 {
+    @apply text-lg font-bold;
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: "Open Sans", Arial, sans-serif;
+.carousel {
+  display: flex;
+  overflow-x: auto;
+  gap: 1rem;
+  scroll-snap-type: x mandatory;
+}
+.carousel img {
+  scroll-snap-align: start;
+  border-radius: 0.5rem;
 }
