@@ -41,8 +41,8 @@ export default async function ArticlePage({ params }: { params: { id: string } }
 	const parsedContent = parse(article.contentHtml, { replace });
 
 	return (
-		<article className="max-w-3xl mx-auto">
-			<h1 className="text-3xl font-bold mb-4">{article.title}</h1>
+		<article className="max-w-6xl mx-auto">
+			<h1 className="text-6xl font-bold mb-20 text-center">{article.title}</h1>
 			{/* Оставшийся код для главного изображения */}
 			{article.imageUrl ? (
 				<Image
