@@ -23,7 +23,22 @@ export * from './enums';
  */
 export type Article = Prisma.ArticleModel
 /**
+ * Model Author
+ * 
+ */
+export type Author = Prisma.AuthorModel
+/**
+ * Model Tag
+ * 
+ */
+export type Tag = Prisma.TagModel
+/**
  * Model Section
  * 
  */
 export type Section = Prisma.SectionModel
+/**
+ * Model Comment
+ * 
+ */
+export type Comment = Prisma.CommentModel

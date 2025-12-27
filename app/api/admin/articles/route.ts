@@ -4,217 +4,154 @@ import { unlink } from 'fs/promises';
 import path from 'path';
 import * as cheerio from 'cheerio';
 
-// --- ИНТЕРФЕЙСЫ ДЛЯ ТИПИЗАЦИИ ДАННЫХ ---
-
 interface ArticleInput {
+	id?: number;
 	title: string;
 	contentHtml: string;
 	sectionId: number;
 	imageUrl?: string | null;
+	authorName?: string | null;
+	tagNames?: string[];
 }
 
-interface ArticleUpdateInput extends ArticleInput {
-	id: number;
-}
-
-interface ArticleIdPayload {
-	id: number;
-}
-
-interface NodeError extends Error {
-	code?: string;
-}
-
-// --- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ---
-
-/**
- * Валидация данных статьи
- */
-function validateArticleData({ title, contentHtml, sectionId }: ArticleInput): boolean {
-	if (
-		!title || typeof title !== 'string' || title.length < 3 ||
-		!contentHtml || typeof contentHtml !== 'string' || contentHtml.length < 10 ||
-		!sectionId || typeof sectionId !== 'number'
-	) {
-		return false;
-	}
-	return true;
-}
-
-/**
- * Извлекает все пути к файлам из контента статьи (включая карусель, видео, аудио, pdf)
- */
+// Извлекаем файлы из HTML с типами
 function extractFilesFromHtml(html: string): string[] {
 	const $ = cheerio.load(html);
 	const files: string[] = [];
 
-	// 1. Изображения, видео, аудио
-	$('img, video, audio, source').each((_: number, el: cheerio.Element) => {
+	$('img, video, audio, source, iframe').each((_, el) => {
 		const src = $(el).attr('src');
 		if (src) files.push(src);
 	});
 
-	// 2. PDF в iframe
-	$('iframe').each((_: number, el: cheerio.Element) => {
-		const src = $(el).attr('src');
-		if (src) files.push(src);
-	});
-
-	// 3. Данные из карусели TipTap
-	$('[data-type="carousel"]').each((_: number, el: cheerio.Element) => {
-		const dataImages = $(el).attr('data-images');
+	$('[data-type="carousel"]').each((_, el) => {
 		try {
-			if (dataImages) {
-				const parsed = JSON.parse(dataImages);
+			const data = $(el).attr('data-images');
+			if (data) {
+				const parsed = JSON.parse(data);
 				if (Array.isArray(parsed)) files.push(...parsed);
 			}
-		} catch (e) {
-			console.error("Ошибка парсинга карусели:", e);
+		} catch {
+			// Игнорируем ошибки парсинга
 		}
 	});
-
-	return [...new Set(files)]; // Убираем дубликаты
+	return [...new Set(files)];
 }
 
-/**
- * Физическое удаление файла с диска
- */
-async function deleteFile(fileUrl: string | undefined | null): Promise<void> {
+async function deleteFile(fileUrl: string | null | undefined) {
 	if (!fileUrl || !fileUrl.startsWith('/uploads/')) return;
-
-	// Очищаем путь от параметров (например, #view=FitH)
-	const cleanPath = fileUrl.split(/[?#]/)[0];
-	const relativePath = cleanPath.substring(1);
-	const filePath = path.join(process.cwd(), 'public', relativePath);
-
+	const cleanPath = fileUrl.split(/[?#]/)[0].substring(1);
+	const filePath = path.join(process.cwd(), 'public', cleanPath);
 	try {
 		await unlink(filePath);
-		console.log(`Файл успешно удален: ${filePath}`);
-	} catch (error) {
-		const nodeError = error as NodeError;
-		if (nodeError.code !== 'ENOENT') {
-			console.error(`Ошибка при удалении файла ${filePath}:`, error);
-		}
+	} catch (error: unknown) {
+		const err = error as { code?: string };
+		if (err.code !== 'ENOENT') console.error(`Ошибка удаления: ${filePath}`, error);
 	}
 }
 
-// --- ОБРАБОТЧИКИ МАРШРУТОВ ---
-
-/**
- * POST - Создание статьи
- */
-export async function POST(req: Request) {
-	try {
-		const data: ArticleInput = await req.json();
-		if (!validateArticleData(data)) {
-			return NextResponse.json({ error: 'Неверные данные.' }, { status: 400 });
-		}
-
-		const { title, imageUrl, contentHtml, sectionId } = data;
-		const article = await prisma.article.create({
-			data: { title, imageUrl, contentHtml, sectionId },
-			include: { section: true },
-		});
-		return NextResponse.json(article);
-	} catch (error) {
-		console.error('POST Error:', error);
-		return NextResponse.json({ error: 'Ошибка при создании.' }, { status: 500 });
-	}
-}
-
-/**
- * GET - Список статей
- */
 export async function GET() {
 	try {
 		const articles = await prisma.article.findMany({
-			include: { section: true },
+			include: { section: true, author: true, tags: true },
 			orderBy: { id: 'desc' },
 		});
 		return NextResponse.json(articles);
 	} catch {
-		return NextResponse.json({ error: 'Ошибка получения данных.' }, { status: 500 });
+		return NextResponse.json({ error: 'Ошибка получения данных' }, { status: 500 });
 	}
 }
 
-/**
- * PUT - Обновление статьи (с автоматической очисткой удаленных файлов)
- */
+export async function POST(req: Request) {
+	try {
+		const data: ArticleInput = await req.json();
+		const { title, contentHtml, sectionId, imageUrl, authorName, tagNames = [] } = data;
+
+		const article = await prisma.article.create({
+			data: {
+				title,
+				contentHtml,
+				imageUrl,
+				section: { connect: { id: Number(sectionId) } },
+				author: authorName ? {
+					connectOrCreate: {
+						where: { name: authorName },
+						create: { name: authorName }
+					}
+				} : undefined,
+				tags: {
+					connectOrCreate: tagNames.map(name => ({
+						where: { name },
+						create: { name }
+					}))
+				}
+			},
+			include: { section: true, author: true, tags: true }
+		});
+		return NextResponse.json(article);
+	} catch (error) {
+		console.error('POST Error:', error);
+		return NextResponse.json({ error: 'Ошибка создания' }, { status: 500 });
+	}
+}
+
 export async function PUT(req: Request) {
 	try {
-		const data: ArticleUpdateInput = await req.json();
-		if (!data.id || !validateArticleData(data)) {
-			return NextResponse.json({ error: 'Неверные данные для обновления.' }, { status: 400 });
-		}
+		const data: ArticleInput = await req.json();
+		const { id, title, contentHtml, sectionId, imageUrl, authorName, tagNames = [] } = data;
 
-		const { id, title, imageUrl, contentHtml, sectionId } = data;
-
-		// 1. Получаем текущую версию статьи из БД до обновления
-		const oldArticle = await prisma.article.findUnique({ where: { id } });
-		if (!oldArticle) {
-			return NextResponse.json({ error: 'Статья не найдена.' }, { status: 404 });
-		}
-
-		// 2. Формируем списки всех файлов (старых и новых)
-		const oldFiles = [
-			...(oldArticle.imageUrl ? [oldArticle.imageUrl] : []),
-			...extractFilesFromHtml(oldArticle.contentHtml)
-		];
-
-		const newFiles = [
-			...(imageUrl ? [imageUrl] : []),
-			...extractFilesFromHtml(contentHtml)
-		];
-
-		// 3. Находим разницу: файлы, которые были, но исчезли из нового контента
-		const deletedFiles = oldFiles.filter(file => !newFiles.includes(file));
-
-		// 4. Удаляем "выброшенные" файлы с диска
-		if (deletedFiles.length > 0) {
-			await Promise.allSettled(deletedFiles.map(url => deleteFile(url)));
-		}
-
-		// 5. Сохраняем обновленную статью
-		const updatedArticle = await prisma.article.update({
+		const oldArticle = await prisma.article.findUnique({
 			where: { id },
-			data: { title, imageUrl, contentHtml, sectionId },
-			include: { section: true },
+			include: { tags: true }
 		});
+		if (!oldArticle) return NextResponse.json({ error: 'Не найдена' }, { status: 404 });
 
-		return NextResponse.json(updatedArticle);
+		const oldFiles = [oldArticle.imageUrl, ...extractFilesFromHtml(oldArticle.contentHtml)];
+		const newFiles = [imageUrl, ...extractFilesFromHtml(contentHtml)];
+		const deletedFiles = oldFiles.filter(f => f && !newFiles.includes(f));
+		await Promise.allSettled(deletedFiles.map(deleteFile));
+
+		const updated = await prisma.article.update({
+			where: { id },
+			data: {
+				title,
+				contentHtml,
+				imageUrl,
+				section: { connect: { id: Number(sectionId) } },
+				author: authorName ? {
+					connectOrCreate: {
+						where: { name: authorName },
+						create: { name: authorName }
+					}
+				} : { disconnect: true },
+				tags: {
+					set: [],
+					connectOrCreate: tagNames.map(name => ({
+						where: { name },
+						create: { name }
+					}))
+				}
+			},
+			include: { section: true, author: true, tags: true }
+		});
+		return NextResponse.json(updated);
 	} catch (error) {
 		console.error('PUT Error:', error);
-		return NextResponse.json({ error: 'Ошибка при обновлении.' }, { status: 500 });
+		return NextResponse.json({ error: 'Ошибка обновления' }, { status: 500 });
 	}
 }
 
-/**
- * DELETE - Полное удаление статьи и всех её медиафайлов
- */
 export async function DELETE(req: Request) {
 	try {
-		const { id }: ArticleIdPayload = await req.json();
+		const { id } = await req.json();
 		const article = await prisma.article.findUnique({ where: { id } });
-
-		if (!article) {
-			return NextResponse.json({ success: true, message: 'Уже удалено.' });
+		if (article) {
+			const files = [article.imageUrl, ...extractFilesFromHtml(article.contentHtml)];
+			await Promise.allSettled(files.map(deleteFile));
+			await prisma.article.delete({ where: { id } });
 		}
-
-		// Собираем всё: главное фото + файлы из текста
-		const filesToDelete = [
-			...(article.imageUrl ? [article.imageUrl] : []),
-			...extractFilesFromHtml(article.contentHtml)
-		];
-
-		// Чистим диск
-		await Promise.allSettled(filesToDelete.map(url => deleteFile(url)));
-
-		// Чистим БД
-		await prisma.article.delete({ where: { id } });
-
 		return NextResponse.json({ success: true });
-	} catch (error) {
-		console.error('DELETE Error:', error);
-		return NextResponse.json({ error: 'Ошибка при удалении.' }, { status: 500 });
+	} catch {
+		return NextResponse.json({ error: 'Ошибка удаления' }, { status: 500 });
 	}
 }

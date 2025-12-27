@@ -1,11 +1,16 @@
+// Базовые подобъекты
+interface Section { id: number; name: string; }
+interface TagItem { id: number; name: string; }
+interface Author { id: number; name: string; }
+
+// Расширенный интерфейс статьи, который приходит из API (Prisma include)
 export interface IArticle {
 	id: number;
 	title: string;
-	sectionId: number;
-	section: {
-		id: number;
-		name: string;
-	};
-	imageUrl?: string;
 	contentHtml: string;
+	imageUrl?: string | null;
+	section: Section;
+	author?: Author | null; // Добавлено
+	tags?: TagItem[];       // Добавлено
+	createdAt?: string;
 }

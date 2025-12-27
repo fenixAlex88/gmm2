@@ -8,14 +8,42 @@ datasource db {
 }
 
 model Article {
-  id          Int      @id @default(autoincrement())
-  title       String
-  imageUrl    String?
-  contentHtml String
-  sectionId   Int
-  section     Section  @relation(fields: [sectionId], references: [id])
+  id           Int       @id @default(autoincrement())
+  title        String
+  imageUrl     String?
+  contentHtml  String
+  views        Int       @default(0)
+  updatedAt    DateTime  @updatedAt @default(now())
+  
+  // Связь с автором
+  authorId     Int?
+  author       Author?   @relation(fields: [authorId], references: [id])
+  
+  // Связь с тегами (многие ко многим)
+  tags         Tag[]
+  
+  sectionId    Int
+  section      Section   @relation(fields: [sectionId], references: [id])
+  comments     Comment[]
 
   @@map("articles")
+}
+
+model Author {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  avatar   String?
+  articles Article[]
+
+  @@map("authors")
+}
+
+model Tag {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  articles Article[]
+
+  @@map("tags")
 }
 
 model Section {
@@ -24,4 +52,20 @@ model Section {
   articles Article[]
 
   @@map("sections")
+}
+
+model Comment {
+  id         Int      @id @default(autoincrement())
+  content    String   @db.Text
+  createdAt  DateTime @default(now())
+  
+  // Данные из Google (NextAuth)
+  authorName   String
+  authorImage  String?
+  authorEmail  String   // Полезно для идентификации, если нужно
+
+  articleId  Int
+  article    Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  @@map("comments")
 }

@@ -4,6 +4,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ScrollToTopButton from '@/components/ScrollToTopButton';
 import SideMenu from '@/components/SideMenu';
+import { Providers } from '@/components/Providers';
 
 export const metadata: Metadata = {
   title: "Геній майго месца / Гений моего места / ГММ",
@@ -23,7 +24,9 @@ export default function RootLayout({
         <div className="flex flex-col flex-1 min-h-screen lg:pl-64 md:pl-16 pl-0">
           <Header />
           <main className="flex-grow container mx-auto px-4 py-8">
-            {children}
+            <Providers>
+               {children}
+            </Providers>
           </main>
           <ScrollToTopButton />
           <Footer />
