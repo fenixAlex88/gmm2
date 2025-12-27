@@ -7,7 +7,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 
 const CarouselComponent = (props: NodeViewProps) => {
 	// Типизируем входящие данные
-	const images: string[] = props.node.attrs.images || [];
+	const imagesRaw = props.node.attrs.images;
+	const images: string[] = Array.isArray(imagesRaw) ? imagesRaw : [];
 	const interval: number = props.node.attrs.interval || 3000;
 
 	const [index, setIndex] = useState(0);
@@ -93,16 +94,26 @@ const CarouselComponent = (props: NodeViewProps) => {
 export const Carousel = Node.create({
 	name: 'carousel',
 	group: 'block',
-	atom: true,
+	atom: true, // Это "листовой" узел, контента внутри него в редакторе нет
 	draggable: true,
 
 	addAttributes() {
 		return {
 			images: {
 				default: [],
+				// ИСПРАВЛЕНИЕ: parseHTML здесь должен извлекать только значение
+				parseHTML: element => {
+					const data = element.getAttribute('data-images');
+					try {
+						return data ? JSON.parse(data) : [];
+					} catch {
+						return [];
+					}
+				},
 			},
 			interval: {
 				default: 3000,
+				parseHTML: element => Number(element.getAttribute('data-interval')) || 3000,
 			}
 		};
 	},
@@ -111,32 +122,28 @@ export const Carousel = Node.create({
 		return [
 			{
 				tag: 'div[data-type="carousel"]',
-				getAttrs: (node) => {
-					// Исправление типизации для node
-					if (typeof node === 'string') return {};
-					const element = node as HTMLElement;
-
-					const images = element.getAttribute('data-images');
-					return {
-						images: images ? JSON.parse(images) : []
-					}
-				}
 			},
 		];
 	},
 
 	renderHTML({ HTMLAttributes }) {
+		// Извлекаем изображения из атрибутов, чтобы не дублировать их в теге дважды
+		const { images, interval, ...rest } = HTMLAttributes;
+
 		return [
 			'div',
-			mergeAttributes(HTMLAttributes, {
+			mergeAttributes(rest, {
 				'data-type': 'carousel',
-				'data-images': JSON.stringify(HTMLAttributes.images)
-			}),
+				'data-images': JSON.stringify(images),
+				'data-interval': interval,
+				// Добавляем стили, которые помогут избежать "слипания"
+				class: 'carousel-node my-10 block rounded-2xl overflow-hidden shadow-xl ring-1 ring-black/5'
+			})
+			// Здесь НЕТ цифры 0, так как узел атомарный
 		];
 	},
 
 	addNodeView() {
-		// Теперь это корректно работает, так как импортировано из @tiptap/react
 		return ReactNodeViewRenderer(CarouselComponent);
 	},
 });

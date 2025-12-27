@@ -3,13 +3,14 @@
 
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
-import React from 'react'
+import React, { useEffect } from 'react'
 import MenuBar from './menu-bar';
 import TextAlign from '@tiptap/extension-text-align';
 import Highlight from '@tiptap/extension-highlight';
 import Image from '@tiptap/extension-image';
 import { Carousel } from './Carousel';
-// import { TwoColumns } from './TwoColumns';
+import { VideoExtension, AudioExtension, PdfExtension } from './MediaExtensions';
+
 
 interface RichTextEditorProps {
 	content: string;
@@ -35,9 +36,11 @@ export default function RichTextEditor({content, onChange}: RichTextEditorProps)
 				types: ['heading', 'paragraph'],
 			}),
 			Highlight,
-			// TwoColumns,
 			Image,
-			Carousel
+			Carousel,
+			VideoExtension,
+			AudioExtension,
+			PdfExtension
 		],
 		content: content,
 		immediatelyRender: false,
@@ -52,6 +55,15 @@ export default function RichTextEditor({content, onChange}: RichTextEditorProps)
 		}
 	})
 
+	useEffect(() => {
+		if (editor && content !== editor.getHTML()) {
+			const timer = setTimeout(() => {
+				editor.commands.setContent(content);
+			}, 0);
+
+			return () => clearTimeout(timer);
+		}
+	}, [content, editor]);
 	return (
 		<div>
 			<MenuBar editor={editor!} />

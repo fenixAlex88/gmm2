@@ -64,3 +64,49 @@
   scroll-snap-align: start;
   border-radius: 0.5rem;
 }
+
+/* Стили для контента из редактора */
+.prose .media-wrapper {
+  transition: transform 0.3s ease;
+}
+
+.prose .media-wrapper:hover {
+  transform: translateY(-4px); /* Легкий эффект при наведении */
+}
+
+/* Расстояние между заголовками и медиа */
+.prose h1, .prose h2 {
+  margin-top: 2.5em;
+  margin-bottom: 1em;
+}
+
+/* Красивый скроллбар для PDF внутри iframe */
+iframe::-webkit-scrollbar {
+  width: 8px;
+}
+iframe::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+/* Убираем ограничения ширины для медиа-контейнеров внутри prose */
+.prose .pdf-container, 
+.prose .media-wrapper {
+  max-width: 100% !important;
+  width: 100%;
+}
+
+/* Если вы хотите, чтобы PDF был даже шире текста статьи (эффект "вылета") */
+.prose .full-width-media {
+  width: 100vw;
+  position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+}
+
+/* Скрываем старый заголовок из базы */
+.media-wrapper div.bg-slate-100.font-bold {
+    display: none !important;
+}

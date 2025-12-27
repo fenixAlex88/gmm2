@@ -1,47 +1,79 @@
-import { AlignCenter, AlignLeft, AlignRight, Bold, Heading1, Heading2, Heading3, Highlighter, Images, Italic, List, ListOrdered, Strikethrough } from 'lucide-react';
+// components/rich-text-editor/menu-bar.tsx
+import {
+	AlignCenter, AlignLeft, AlignRight, Bold, Heading1, Heading2, Heading3,
+	Highlighter, Images, Italic, List, ListOrdered, Strikethrough,
+	Video, Music, FileText
+} from 'lucide-react';
 import React from 'react'
 import { Editor } from '@tiptap/react';
 import { Toggle } from '../ui/toggle';
 import { uploadFiles } from '@/helpers/uploadFiles';
 
-export default function MenuBar({ editor }: {editor: Editor}) {
+export default function MenuBar({ editor }: { editor: Editor }) {
 	if (!editor) return null;
 
-	const addCarousel = async () => { // ⭐ Сделали асинхронной
+	// --- Универсальная функция загрузки ---
+	const handleFileUpload = (
+		accept: string,
+		type: 'carousel' | 'video' | 'audio' | 'pdf'
+	) => {
 		const input = document.createElement("input");
 		input.type = "file";
-		input.accept = "image/*";
-		input.multiple = true;
+		input.accept = accept;
+		input.multiple = type === 'carousel'; // Только карусель поддерживает множественный выбор
 
+		// ⭐ ИСПРАВЛЕНИЕ: Добавлен обработчик события
 		input.onchange = async () => {
 			if (!input.files?.length) return;
 
-			// --- 1. Загрузка файлов на сервер ---
 			try {
-				// Массив файлов (FileList) передается в новую функцию
-				const imageUrls = await uploadFiles(input.files);
+				// Загружаем файлы и получаем URL
+				const urls = await uploadFiles(input.files);
 
-				if (imageUrls.length === 0) {
-					alert('Не удалось загрузить ни одно изображение.');
+				if (urls.length === 0) {
+					alert('Не удалось загрузить файл.');
 					return;
 				}
 
-				// --- 2. Вставляем узел карусели в редактор ---
-				editor.chain().focus().insertContent({
-					type: 'carousel',
-					attrs: {
-						images: imageUrls // Используем реальные URL с сервера
-					}
-				}).run();
+				// Логика вставки в зависимости от типа
+				switch (type) {
+					case 'carousel':
+						editor.chain().focus().insertContent({
+							type: 'carousel',
+							attrs: { images: urls }
+						}).run();
+						break;
+
+					case 'video':
+						editor.chain().focus().insertContent({
+							type: 'video',
+							attrs: { src: urls[0] }
+						}).run();
+						break;
+
+					case 'audio':
+						editor.chain().focus().insertContent({
+							type: 'audio',
+							attrs: { src: urls[0] }
+						}).run();
+						break;
+
+					case 'pdf':
+						editor.chain().focus().insertContent({
+							type: 'pdf',
+							attrs: { src: urls[0] }
+						}).run();
+						break;
+				}
 
 			} catch (error) {
-				console.error("Ошибка при загрузке или вставке карусели:", error);
-				alert("Ошибка: Не удалось загрузить изображения для карусели.");
+				console.error("Ошибка загрузки:", error);
+				alert("Ошибка при загрузке файла.");
 			}
 		};
 
 		input.click();
-	};
+	}
 
 	const Options = [
 		{
@@ -104,27 +136,44 @@ export default function MenuBar({ editor }: {editor: Editor}) {
 			onClick: () => editor.chain().focus().toggleHighlight().run(),
 			preesed: editor.isActive("highlight"),
 		},
-		{
-			icon: <span className="text-xs font-bold">2⎜</span>,
-			onClick: () => editor.chain().focus().toggleNode('twoColumns', 'paragraph').run(),
-			preesed: editor.isActive('twoColumns'),
-		},
+		// --- МЕДИА БЛОК ---
 		{
 			icon: <Images className="size-4" />,
-			onClick: addCarousel,
-			preesed: editor.isActive("carousel"), // Подсветка, если курсор на карусели
-			label: "Карусель"
+			onClick: () => handleFileUpload('image/*', 'carousel'),
+			preesed: editor.isActive("carousel"),
+			label: "Карусель (Фото)"
 		},
-
-
+		{
+			icon: <Video className="size-4" />,
+			onClick: () => handleFileUpload('video/*', 'video'),
+			preesed: editor.isActive("video"),
+			label: "Видео"
+		},
+		{
+			icon: <Music className="size-4" />,
+			onClick: () => handleFileUpload('audio/*', 'audio'),
+			preesed: editor.isActive("audio"),
+			label: "Аудио"
+		},
+		{
+			icon: <FileText className="size-4" />,
+			onClick: () => handleFileUpload('application/pdf', 'pdf'),
+			preesed: editor.isActive("pdf"),
+			label: "PDF Документ"
+		},
 	];
 
-  return (
-	  <div className="border rounded-md p-1 mb-1 bg-slate-100 space-x-2 z-50">
-		{Options.map((option, index) =>(
-			<Toggle key={index} pressed={option.preesed} onPressedChange={option.onClick}>{option.icon}</Toggle>
-		))
-		}
-	  </div>
-  )
+	return (
+		<div className="border rounded-md p-1 mb-1 bg-slate-100 space-x-2 z-50 flex flex-wrap gap-y-1">
+			{Options.map((option, index) => (
+				<Toggle
+					key={index}
+					pressed={option.preesed}
+					onPressedChange={option.onClick}
+				>
+					{option.icon}
+				</Toggle>
+			))}
+		</div>
+	)
 }

@@ -8,7 +8,7 @@ export async function uploadFiles(files: FileList): Promise<string[]> {
 		const formData = new FormData();
 		formData.append("file", file);
 
-		const uploadPromise = fetch("/api/admin/upload", { // Укажите правильный путь, если он отличается
+		const uploadPromise = fetch("/api/admin/upload", {
 			method: "POST",
 			body: formData,
 		})
