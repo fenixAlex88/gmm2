@@ -1,7 +1,7 @@
 'use client';
 
 import { IArticle } from '@/interfaces/IArticle';
-import { useEffect, useState, useCallback, useMemo } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import Image from 'next/image';
 import RichTextEditor from '@/components/rich-text-editor';
 import { Trash2, Plus, Edit3, Database, Save, RotateCcw, Image as ImageIcon } from 'lucide-react';
@@ -96,7 +96,7 @@ export default function AdminPage() {
 			}
 			setForm(initialFormState);
 			alert('Статья сохранена успешно!');
-		} catch (error) {
+		} catch {
 			alert('Ошибка при сохранении');
 		} finally {
 			setIsSubmitting(false);
@@ -162,8 +162,16 @@ export default function AdminPage() {
 										{a.title}
 									</h3>
 									<button
-										onClick={(e) => { e.stopPropagation(); handleDelete(a.id); }}
-										className="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-red-500 transition-all"
+										onClick={(e) => {
+											e.stopPropagation();
+											handleDelete(a.id);
+										}}
+										// Добавляем использование переменной:
+										disabled={isDeleting}
+										className={`opacity-0 group-hover:opacity-100 p-1 transition-all ${isDeleting
+												? 'text-slate-200 cursor-not-allowed'
+												: 'text-slate-400 hover:text-red-500'
+											}`}
 									>
 										<Trash2 size={14} />
 									</button>
