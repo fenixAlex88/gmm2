@@ -23,7 +23,7 @@ export default function RootLayout({
         <SideMenu />
         <div className="flex flex-col flex-1 min-h-screen lg:pl-64 md:pl-16 pl-0">
           <Header />
-          <main className="flex-grow container mx-auto px-4 py-8">
+          <main className="flex-grow container mx-auto px-4">
             <Providers>
                {children}
             </Providers>

@@ -1,22 +1,39 @@
 import { prisma } from "@/lib/prisma";
+import { NextResponse } from "next/server";
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
-	const articleId = parseInt(params.id);
+type RouteContext = {
+	params: Promise<{ id: string }>;
+};
 
-	const article = await prisma.article.update({
-		where: { id: articleId },
-		data: {
-			views: {
-				increment: 1
-			}
-		},
-		include: {
-			section: true,
-			comments: {
-				orderBy: { createdAt: 'desc' }
-			}
+export async function GET(req: Request, context: RouteContext) {
+	try {
+		const { id } = await context.params;
+		const articleId = parseInt(id);
+
+		if (isNaN(articleId)) {
+			return NextResponse.json({ error: "Неверный формат ID" }, { status: 400 });
 		}
-	});
 
-	return Response.json(article);
+		const article = await prisma.article.update({
+			where: { id: articleId },
+			data: {
+				views: {
+					increment: 1
+				}
+			},
+			include: {
+				section: true,
+				tags: true,
+				author: true,
+				comments: {
+					orderBy: { createdAt: 'desc' }
+				}
+			}
+		});
+
+		return NextResponse.json(article);
+	} catch (error) {
+		console.error("API Error:", error);
+		return NextResponse.json({ error: "Статья не найдена" }, { status: 404 });
+	}
 }

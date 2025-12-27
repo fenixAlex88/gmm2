@@ -7,10 +7,11 @@ interface Author { id: number; name: string; }
 export interface IArticle {
 	id: number;
 	title: string;
+	views: number;
 	contentHtml: string;
 	imageUrl?: string | null;
 	section: Section;
-	author?: Author | null; // Добавлено
-	tags?: TagItem[];       // Добавлено
-	createdAt?: string;
+	author?: Author | null;
+	tags?: TagItem[];      
+	updatedAt?: string;
 }

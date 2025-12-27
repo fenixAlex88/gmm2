@@ -143,15 +143,41 @@ export async function PUT(req: Request) {
 
 export async function DELETE(req: Request) {
 	try {
-		const { id } = await req.json();
-		const article = await prisma.article.findUnique({ where: { id } });
-		if (article) {
-			const files = [article.imageUrl, ...extractFilesFromHtml(article.contentHtml)];
-			await Promise.allSettled(files.map(deleteFile));
-			await prisma.article.delete({ where: { id } });
+		const { searchParams } = new URL(req.url);
+		const id = Number(searchParams.get('id'));
+
+		if (!id) {
+			return NextResponse.json({ error: 'ID не указан' }, { status: 400 });
 		}
+
+		const article = await prisma.article.findUnique({
+			where: { id },
+			include: { tags: true } 
+		});
+
+		if (article) {
+			const files = [article.imageUrl, ...extractFilesFromHtml(article.contentHtml)]
+				.filter(Boolean) as string[];
+
+			await Promise.allSettled(files.map(deleteFile));
+
+			await prisma.$transaction(async (tx) => {
+				await tx.article.update({
+					where: { id },
+					data: { tags: { set: [] } }
+				});
+
+				await tx.article.delete({ where: { id } });
+			});
+		}
+
 		return NextResponse.json({ success: true });
-	} catch {
-		return NextResponse.json({ error: 'Ошибка удаления' }, { status: 500 });
+	} catch (error: any) {
+		console.error("DELETE_ERROR:", error);
+
+		return NextResponse.json(
+			{ error: 'Ошибка удаления', details: error.message },
+			{ status: 500 }
+		);
 	}
 }
