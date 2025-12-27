@@ -3,13 +3,10 @@
 import { IArticle } from '@/interfaces/IArticle';
 import { useEffect, useState, useCallback, useMemo } from 'react';
 import Image from 'next/image';
-import RichTextEditor from '@/components/rich-text-editor'; // Предполагается, что этот компонент существует
+import RichTextEditor from '@/components/rich-text-editor';
+import { Trash2, Plus, Edit3, Database, Save, RotateCcw, Image as ImageIcon } from 'lucide-react';
 
-// Интерфейсы, чтобы сделать компонент чище
-type Section = {
-	id: number;
-	name: string;
-};
+type Section = { id: number; name: string; };
 
 interface FormState {
 	id: number | null;
@@ -20,7 +17,6 @@ interface FormState {
 	currentImageUrl: string | null;
 }
 
-// Начальное состояние формы
 const initialFormState: FormState = {
 	id: null,
 	title: '',
@@ -29,17 +25,6 @@ const initialFormState: FormState = {
 	imageFile: null,
 	currentImageUrl: null,
 };
-
-// Функция для чтения ответа API, даже если он содержит ошибку (status != 200)
-async function parseResponse(res: Response) {
-	try {
-		const data = await res.json();
-		return data;
-	} catch {
-		// Если не удалось распарсить JSON, возвращаем пустой объект
-		return {};
-	}
-}
 
 export default function AdminPage() {
 	const [articles, setArticles] = useState<IArticle[]>([]);
@@ -51,7 +36,7 @@ export default function AdminPage() {
 
 	const isEditing = form.id !== null;
 
-	// --- Функции API ---
+	// --- API Logic ---
 
 	const loadData = useCallback(async () => {
 		setIsLoading(true);
@@ -60,347 +45,252 @@ export default function AdminPage() {
 				fetch('/api/admin/articles'),
 				fetch('/api/admin/sections'),
 			]);
-
-			if (!articlesRes.ok || !sectionsRes.ok) throw new Error('Ошибка загрузки данных.');
-
-			const articlesData = await articlesRes.json();
-			const sectionsData = await sectionsRes.json();
-
-			setArticles(articlesData);
-			setSections(sectionsData);
+			if (!articlesRes.ok || !sectionsRes.ok) throw new Error('Ошибка загрузки');
+			setArticles(await articlesRes.json());
+			setSections(await sectionsRes.json());
 		} catch (error) {
 			console.error(error);
-			alert(`Ошибка загрузки: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`);
 		} finally {
 			setIsLoading(false);
 		}
 	}, []);
 
-	useEffect(() => {
-		loadData();
-	}, [loadData]);
+	useEffect(() => { loadData(); }, [loadData]);
 
-	const uploadImage = useCallback(async (file: File): Promise<string> => {
-		const data = new FormData();
-		data.append('file', file);
+	const handleCleanup = async () => {
+		if (!confirm('Удалить неиспользуемые файлы с сервера?')) return;
+		try {
+			const res = await fetch('/api/admin/cleanup', { method: 'POST' });
+			const data = await res.json();
+			alert(data.message);
+		} catch { alert('Ошибка связи с сервером'); }
+	};
 
-		const res = await fetch('/api/admin/upload', { method: 'POST', body: data });
-		const json = await parseResponse(res);
-
-		if (!res.ok) {
-			const errorMsg = json.error || 'Ошибка загрузки изображения.';
-			throw new Error(errorMsg);
-		}
-
-		return json.url;
-	}, []);
-
-	const handleSubmit = useCallback(async (e: React.FormEvent) => {
+	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
+		if (!form.title || form.sectionId === 0) return alert('Заполните заголовок и раздел');
 		setIsSubmitting(true);
 
 		try {
-			if (form.sectionId === 0) {
-				alert('Пожалуйста, выберите раздел!');
-				return;
-			}
-
-			let imageUrl: string | undefined = form.currentImageUrl ?? undefined;
+			let imageUrl = form.currentImageUrl;
 
 			if (form.imageFile) {
-				imageUrl = await uploadImage(form.imageFile);
+				const formData = new FormData();
+				formData.append('file', form.imageFile);
+				const uploadRes = await fetch('/api/admin/upload', { method: 'POST', body: formData });
+				const uploadData = await uploadRes.json();
+				imageUrl = uploadData.url;
 			}
-
-			const payload = {
-				id: form.id,
-				title: form.title,
-				contentHtml: form.contentHtml,
-				sectionId: form.sectionId,
-				imageUrl
-			};
-
-			const method = isEditing ? 'PUT' : 'POST';
 
 			const res = await fetch('/api/admin/articles', {
-				method,
+				method: isEditing ? 'PUT' : 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(payload),
+				body: JSON.stringify({ ...form, imageUrl }),
 			});
 
-			const responseData = await parseResponse(res);
-
-			if (!res.ok) {
-				// Используем сообщение об ошибке, переданное сервером (например, из-за валидации)
-				const errorMsg = responseData.error || `Ошибка ${res.status} при сохранении статьи.`;
-				throw new Error(errorMsg);
-			}
-
-			// Обновляем список статей
+			const savedArticle = await res.json();
 			if (isEditing) {
-				setArticles(prev => prev.map(a => a.id === responseData.id ? responseData : a));
+				setArticles(prev => prev.map(a => a.id === savedArticle.id ? savedArticle : a));
 			} else {
-				setArticles(prev => [responseData, ...prev]);
+				setArticles(prev => [savedArticle, ...prev]);
 			}
-
-			// Очищаем форму
 			setForm(initialFormState);
-
+			alert('Статья сохранена успешно!');
 		} catch (error) {
-			console.error("Ошибка при отправке формы:", error);
-			alert(`Ошибка: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`);
+			alert('Ошибка при сохранении');
 		} finally {
 			setIsSubmitting(false);
 		}
-	}, [form, isEditing, uploadImage]);
+	};
 
-	const handleDelete = useCallback(async (id: number) => {
-		if (!confirm('Вы уверены, что хотите удалить эту статью? Это действие необратимо.')) return;
-
+	const handleDelete = async (id: number) => {
+		if (!confirm('Удалить статью навсегда?')) return;
 		setIsDeleting(true);
-
 		try {
-			const res = await fetch('/api/admin/articles', {
+			await fetch('/api/admin/articles', {
 				method: 'DELETE',
-				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ id }),
 			});
-
-			const responseData = await parseResponse(res);
-
-			if (!res.ok) {
-				const errorMsg = responseData.error || `Ошибка ${res.status} при удалении статьи.`;
-				throw new Error(errorMsg);
-			}
-
-			setArticles((prev) => prev.filter((a) => a.id !== id));
-
-			// Если удаляем статью, которую редактировали, сбрасываем форму
-			if (form.id === id) {
-				setForm(initialFormState);
-			}
-		} catch (error) {
-			console.error("Ошибка при удалении:", error);
-			alert(`Ошибка удаления: ${error instanceof Error ? error.message : 'Неизвестная ошибка'}`);
+			setArticles(prev => prev.filter(a => a.id !== id));
+			if (form.id === id) setForm(initialFormState);
 		} finally {
 			setIsDeleting(false);
 		}
-	}, [form.id]);
-
-	const onTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		setForm((prev) => ({ ...prev, title: e.target.value }));
 	};
-
-	const onContentChange = (html: string) => {
-		setForm((prev) => ({ ...prev, contentHtml: html }));
-	};
-
-	const onSectionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-		setForm((prev) => ({ ...prev, sectionId: Number(e.target.value) }));
-	};
-
-	const onImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		setForm((prev) => ({
-			...prev,
-			imageFile: e.target.files?.[0] ?? null,
-		}));
-	};
-
-	const startEdit = useCallback((article: IArticle) => {
-		setForm({
-			id: article.id,
-			title: article.title,
-			contentHtml: article.contentHtml,
-			sectionId: article.section.id,
-			imageFile: null,
-			currentImageUrl: article.imageUrl ?? null,
-		});
-		document.getElementById('article-form-title')?.scrollIntoView({ behavior: 'smooth' });
-	}, []);
-
-	const currentSectionName = useMemo(() => {
-		return sections.find(s => s.id === form.sectionId)?.name;
-	}, [form.sectionId, sections]);
-
-	// Проверка, активна ли кнопка
-	const isFormValid = Boolean(form.title && form.contentHtml && form.sectionId !== 0);
 
 	return (
-		<div className="flex p-8 gap-8 h-screen">
+		<div className="flex h-screen bg-slate-100 overflow-hidden">
 
-			{/* 1. Список статей (Таблица) - W-1/3 */}
-			<div className="w-1/3 flex flex-col bg-white p-4 rounded shadow-lg overflow-y-auto border">
-				<h2 className="text-xl font-bold mb-4 text-gray-700">📚 Список статей</h2>
+			{/* ЛЕВАЯ ПАНЕЛЬ: Список статей */}
+			<aside className="w-80 flex flex-col bg-white border-r border-slate-200 shadow-xl z-10">
+				<div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+					<h2 className="font-bold text-slate-800 flex items-center gap-2">
+						<Database size={18} /> Статьи ({articles.length})
+					</h2>
+					<button
+						onClick={handleCleanup}
+						className="p-2 text-slate-400 hover:text-amber-600 transition-colors"
+						title="Очистить мусор на сервере"
+					>
+						<Trash2 size={16} />
+					</button>
+				</div>
 
-				{isLoading ? (
-					<p className="text-gray-500">Загрузка данных...</p>
-				) : articles.length === 0 ? (
-					<p className="text-gray-500 italic">Нет статей для отображения.</p>
-				) : (
-					<table className="min-w-full divide-y divide-gray-200">
-						<thead className="bg-gray-50 sticky top-0">
-							<tr>
-								<th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Заголовок</th>
-								<th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Раздел</th>
-								<th className="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Действия</th>
-							</tr>
-						</thead>
-						<tbody className="bg-white divide-y divide-gray-200">
-							{articles.map((a) => (
-								<tr key={a.id} className="hover:bg-yellow-50/50 transition-colors">
-									<td className="px-3 py-2 text-sm font-medium text-gray-900">{a.title}</td>
-									<td className="px-3 py-2 text-xs text-gray-500">{a.section?.name || '—'}</td>
-									<td className="px-3 py-2 text-right text-sm font-medium flex gap-1 justify-end">
-										<button
-											onClick={() => startEdit(a)}
-											disabled={isDeleting || isSubmitting}
-											className="text-yellow-600 hover:text-yellow-900 disabled:opacity-50 disabled:cursor-not-allowed"
-											title="Редактировать"
-										>
-											✏️
-										</button>
-										<button
-											onClick={() => handleDelete(a.id)}
-											disabled={isDeleting || isSubmitting}
-											className="text-red-600 hover:text-red-900 disabled:opacity-50 disabled:cursor-not-allowed"
-											title="Удалить"
-										>
-											🗑️
-										</button>
-									</td>
-								</tr>
-							))}
-						</tbody>
-					</table>
-				)}
-			</div>
+				<div className="flex-grow overflow-y-auto">
+					{isLoading ? (
+						<div className="p-4 space-y-3">
+							{[1, 2, 3].map(i => <div key={i} className="h-12 bg-slate-100 animate-pulse rounded" />)}
+						</div>
+					) : (
+						articles.map((a) => (
+							<div
+								key={a.id}
+								onClick={() => {
+									setForm({
+										id: a.id,
+										title: a.title,
+										contentHtml: a.contentHtml,
+										sectionId: a.section.id,
+										imageFile: null,
+										currentImageUrl: a.imageUrl ?? null,
+									});
+								}}
+								className={`group p-4 border-b border-slate-50 cursor-pointer transition-all hover:bg-blue-50/50 ${form.id === a.id ? 'bg-blue-50 border-l-4 border-l-blue-600' : ''}`}
+							>
+								<div className="flex justify-between items-start gap-2">
+									<h3 className="text-sm font-semibold text-slate-700 line-clamp-2 leading-snug">
+										{a.title}
+									</h3>
+									<button
+										onClick={(e) => { e.stopPropagation(); handleDelete(a.id); }}
+										className="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-red-500 transition-all"
+									>
+										<Trash2 size={14} />
+									</button>
+								</div>
+								<span className="text-[10px] uppercase tracking-wider font-bold text-slate-400 mt-2 block">
+									{a.section?.name}
+								</span>
+							</div>
+						))
+					)}
+				</div>
 
-			{/* 2. Форма (Основное место) - W-2/3 */}
-			<div className="w-2/3 flex flex-col bg-gray-50 p-6 rounded shadow-lg border overflow-y-auto">
-				<h2 id="article-form-title" className="text-2xl font-bold mb-4 text-gray-800">
-					{isEditing ? `📝 Редактировать статью: ${form.title}` : '✨ Создать новую статью'}
-				</h2>
+				<div className="p-4 bg-slate-50 border-t">
+					<button
+						onClick={() => setForm(initialFormState)}
+						className="w-full flex items-center justify-center gap-2 bg-blue-600 text-white py-2.5 rounded-lg font-bold hover:bg-blue-700 transition-all shadow-md active:scale-95"
+					>
+						<Plus size={18} /> Новая статья
+					</button>
+				</div>
+			</aside>
 
-				<form onSubmit={handleSubmit} className="flex flex-col gap-5">
+			{/* ОСНОВНАЯ ПАНЕЛЬ: Редактор */}
+			<main className="flex-grow flex flex-col bg-white overflow-hidden relative">
 
-					{/* Поле: Заголовок */}
-					<label className="block">
-						<span className="text-gray-700 font-medium mb-1 block">Заголовок статьи:</span>
-						<input
-							type="text"
-							placeholder="Введите заголовок"
-							value={form.title}
-							onChange={onTitleChange}
-							className="border p-3 w-full rounded focus:outline-none focus:ring-2 focus:ring-blue-500 text-lg"
-							required
-						/>
-					</label>
+				{/* Header формы */}
+				<header className="h-16 border-b border-slate-200 px-8 flex items-center justify-between bg-white/80 backdrop-blur-md sticky top-0 z-20">
+					<div className="flex items-center gap-4">
+						<div className={`p-2 rounded-lg ${isEditing ? 'bg-amber-100 text-amber-600' : 'bg-green-100 text-green-600'}`}>
+							{isEditing ? <Edit3 size={20} /> : <Plus size={20} />}
+						</div>
+						<h1 className="text-xl font-black text-slate-800 tracking-tight">
+							{isEditing ? 'Редактирование' : 'Новая публикация'}
+						</h1>
+					</div>
 
-					{/* Поле: Раздел */}
-					<label className="block">
-						<span className="text-gray-700 font-medium mb-1 block">Раздел:</span>
-						<select
-							value={form.sectionId}
-							onChange={onSectionChange}
-							className="border p-3 w-full rounded focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-							required
+					<div className="flex items-center gap-3">
+						{isEditing && (
+							<button
+								onClick={() => setForm(initialFormState)}
+								className="flex items-center gap-2 px-4 py-2 text-slate-500 hover:bg-slate-100 rounded-lg transition-all"
+							>
+								<RotateCcw size={18} /> Отмена
+							</button>
+						)}
+						<button
+							onClick={handleSubmit}
+							disabled={isSubmitting || !form.title || !form.contentHtml}
+							className="flex items-center gap-2 px-6 py-2 bg-slate-900 text-white rounded-lg font-bold hover:bg-slate-800 disabled:opacity-30 disabled:grayscale transition-all shadow-lg active:scale-95"
 						>
-							<option value={0} disabled>Выберите раздел</option>
-							{sections.map((s) => (
-								<option key={s.id} value={s.id}>
-									{s.name}
-								</option>
-							))}
-						</select>
-					</label>
+							{isSubmitting ? '...' : <><Save size={18} /> Сохранить</>}
+						</button>
+					</div>
+				</header>
 
-					{/* Поле: Изображение */}
-					<div className="flex gap-4 items-center border p-4 rounded bg-white">
-						<div className="flex-grow">
-							<span className="text-gray-700 font-medium mb-1 block">Изображение обложки:</span>
+				{/* Тело формы */}
+				<div className="flex-grow overflow-y-auto px-8 py-8 scroll-smooth">
+					<div className="max-w-5xl mx-auto space-y-8">
+
+						{/* Поля Title и Section */}
+						<div className="grid grid-cols-3 gap-6">
+							<div className="col-span-2 space-y-2">
+								<label className="text-xs font-black uppercase text-slate-400 tracking-widest ml-1">Заголовок статьи</label>
+								<input
+									type="text"
+									value={form.title}
+									onChange={(e) => setForm(p => ({ ...p, title: e.target.value }))}
+									placeholder="Введите броский заголовок..."
+									className="w-full text-3xl font-black placeholder:text-slate-200 focus:outline-none border-b-2 border-transparent focus:border-blue-500 pb-2 transition-all"
+								/>
+							</div>
+							<div className="space-y-2">
+								<label className="text-xs font-black uppercase text-slate-400 tracking-widest ml-1">Раздел</label>
+								<select
+									value={form.sectionId}
+									onChange={(e) => setForm(p => ({ ...p, sectionId: Number(e.target.value) }))}
+									className="w-full h-12 border-2 border-slate-100 rounded-xl px-4 font-bold text-slate-700 focus:border-blue-500 focus:outline-none bg-slate-50/50 cursor-pointer"
+								>
+									<option value={0}>Выбрать категорию</option>
+									{sections.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+								</select>
+							</div>
+						</div>
+
+						{/* Загрузка обложки */}
+						<div className="group relative w-full h-48 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center overflow-hidden transition-all hover:border-blue-400">
+							{(form.imageFile || form.currentImageUrl) ? (
+								<>
+									<Image
+										src={form.imageFile ? URL.createObjectURL(form.imageFile) : (form.currentImageUrl || '')}
+										alt="Cover"
+										fill
+										className="object-cover opacity-60 blur-[2px]"
+										unoptimized
+									/>
+									<div className="absolute inset-0 bg-slate-900/20 flex flex-col items-center justify-center text-white">
+										<ImageIcon size={32} className="mb-2 shadow-sm" />
+										<span className="font-bold text-sm drop-shadow-md">Нажмите, чтобы заменить обложку</span>
+									</div>
+								</>
+							) : (
+								<div className="text-slate-400 flex flex-col items-center">
+									<ImageIcon size={40} strokeWidth={1} className="mb-2" />
+									<span className="text-sm font-medium">Главное изображение статьи</span>
+								</div>
+							)}
 							<input
 								type="file"
 								accept="image/*"
-								onChange={onImageChange}
-								className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+								onChange={(e) => setForm(p => ({ ...p, imageFile: e.target.files?.[0] ?? null }))}
+								className="absolute inset-0 opacity-0 cursor-pointer"
 							/>
-							{form.imageFile && (
-								<p className="text-xs mt-2 text-green-600">
-									Новый файл: **{form.imageFile.name}** будет загружен.
-								</p>
-							)}
 						</div>
 
-						{/* Предпросмотр изображения */}
-						{(form.currentImageUrl && !form.imageFile) && (
-							<div className="relative w-24 h-24 rounded overflow-hidden flex-shrink-0">
-								<Image
-									src={form.currentImageUrl}
-									alt="Текущее изображение"
-									fill
-									style={{ objectFit: "cover" }}
-									className="border border-gray-300"
-									unoptimized
+						{/* Редактор */}
+						<div className="space-y-4 pb-20">
+							<label className="text-xs font-black uppercase text-slate-400 tracking-widest ml-1">Контент</label>
+							<div className="min-h-[500px]">
+								<RichTextEditor
+									content={form.contentHtml}
+									onChange={(html) => setForm(p => ({ ...p, contentHtml: html }))}
 								/>
 							</div>
-						)}
-						{form.imageFile && (
-							<div className="relative w-24 h-24 rounded overflow-hidden flex-shrink-0">
-								<Image
-									src={URL.createObjectURL(form.imageFile)}
-									alt="Предпросмотр нового изображения"
-									fill
-									style={{ objectFit: "cover" }}
-									className="border border-blue-500"
-									unoptimized
-								/>
-							</div>
-						)}
+						</div>
 					</div>
-
-					{/* Поле: Контент (RichTextEditor) */}
-					<label className="block">
-						<span className="text-gray-700 font-medium mb-1 block">Содержимое статьи:</span>
-						<RichTextEditor content={form.contentHtml} onChange={onContentChange} />
-					</label>
-
-					{/* Кнопки действий */}
-					<div className='flex gap-4 mt-2'>
-						<button
-							type="submit"
-							disabled={isSubmitting || !isFormValid}
-							className={`
-                                flex-grow bg-blue-600 text-white py-3 rounded-lg text-lg font-semibold transition-colors
-                                hover:bg-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-300
-                                ${isSubmitting ? 'opacity-50 cursor-wait' : ''}
-                                disabled:opacity-50 disabled:cursor-not-allowed
-                            `}
-						>
-							{isSubmitting
-								? (isEditing ? 'Обновление...' : 'Создание...')
-								: (isEditing ? '💾 Обновить статью' : '➕ Создать статью')}
-						</button>
-
-						{/* Кнопка сброса/отмены */}
-						<button
-							type="button"
-							onClick={() => setForm(initialFormState)}
-							disabled={isSubmitting}
-							className={`
-                                px-6 py-3 rounded-lg text-gray-700 border border-gray-300 bg-white hover:bg-gray-100 transition-colors
-                                ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}
-                            `}
-						>
-							{isEditing ? 'Отмена (Новая статья)' : 'Сброс'}
-						</button>
-					</div>
-
-					{isEditing && (
-						<p className="text-sm text-gray-500 italic mt-3">
-							Вы редактируете статью с ID **{form.id}** в разделе **{currentSectionName}**.
-						</p>
-					)}
-				</form>
-			</div>
+				</div>
+			</main>
 		</div>
 	);
 }
