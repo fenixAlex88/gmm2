@@ -172,11 +172,11 @@ export async function DELETE(req: Request) {
 		}
 
 		return NextResponse.json({ success: true });
-	} catch (error: any) {
+	} catch (error) {
 		console.error("DELETE_ERROR:", error);
-
+		const errorMessage = error instanceof Error ? error.message : 'Неизвестная ошибка';
 		return NextResponse.json(
-			{ error: 'Ошибка удаления', details: error.message },
+			{ error: 'Ошибка удаления', details: errorMessage },
 			{ status: 500 }
 		);
 	}
