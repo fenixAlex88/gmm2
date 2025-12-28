@@ -9,10 +9,6 @@ interface Props {
 export default function SearchBar({ value, onChange }: Props) {
 	return (
 		<div className="flex flex-col space-y-1.5 flex-grow">
-			{/* Лейбл для выравнивания с SortSelect и FilterSection */}
-			<label className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
-				<Search size={12} /> Поиск
-			</label>
 
 			<div className="relative">
 				<Search

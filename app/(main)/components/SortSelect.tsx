@@ -9,10 +9,6 @@ interface Props {
 export default function SortSelect({ value, onChange }: Props) {
 	return (
 		<div className="flex flex-col space-y-1.5 flex-shrink-0">
-			{/* Лейбл для соответствия структуре фильтров */}
-			<label className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
-				<ArrowUpDown size={12} /> Сортировка
-			</label>
 
 			<div className="relative">
 				<select

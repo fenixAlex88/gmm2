@@ -1,8 +1,9 @@
-'use client';
+//  components\ArticleCard.tsx
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { IArticle } from '@/interfaces/IArticle';
-import { Calendar, Eye, Heart } from 'lucide-react'; // Добавили Heart
+import { Calendar, Eye, Heart } from 'lucide-react';
 
 interface ArticleCardProps {
 	article: IArticle;
