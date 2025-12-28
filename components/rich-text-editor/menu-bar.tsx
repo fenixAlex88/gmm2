@@ -2,7 +2,8 @@
 import {
 	AlignCenter, AlignLeft, AlignRight, Bold, Heading1, Heading2, Heading3,
 	Highlighter, Images, Italic, List, ListOrdered, Strikethrough,
-	Video, Music, FileText
+	Video, Music, FileText,
+	MapIcon
 } from 'lucide-react';
 import React from 'react'
 import { Editor } from '@tiptap/react';
@@ -11,6 +12,25 @@ import { uploadFiles } from '@/helpers/uploadFiles';
 
 export default function MenuBar({ editor }: { editor: Editor }) {
 	if (!editor) return null;
+
+
+	const addMap = () => {
+		const coordsStr = prompt("Увядзіце каардынаты праз коску (lat, lng) і метку праз | (прыклад: 53.9,27.5|Мінск). Можна некалькі праз прабел.");
+		if (!coordsStr) return;
+
+		const markers = coordsStr.split(' ').map(item => {
+			const [coords, label] = item.split('|');
+			const [lat, lng] = coords.split(',').map(Number);
+			return { lat, lng, label: label || '' };
+		}).filter(m => !isNaN(m.lat) && !isNaN(m.lng));
+
+		if (markers.length > 0) {
+			editor.chain().focus().insertContent({
+				type: 'mapBlock',
+				attrs: { markers }
+			}).run();
+		}
+	};
 
 	// --- Универсальная функция загрузки ---
 	const handleFileUpload = (
@@ -22,7 +42,7 @@ export default function MenuBar({ editor }: { editor: Editor }) {
 		input.accept = accept;
 		input.multiple = type === 'carousel'; // Только карусель поддерживает множественный выбор
 
-		// ⭐ ИСПРАВЛЕНИЕ: Добавлен обработчик события
+	
 		input.onchange = async () => {
 			if (!input.files?.length) return;
 
@@ -160,6 +180,12 @@ export default function MenuBar({ editor }: { editor: Editor }) {
 			onClick: () => handleFileUpload('application/pdf', 'pdf'),
 			preesed: editor.isActive("pdf"),
 			label: "PDF Документ"
+		},
+		{
+			icon: <MapIcon className="size-4" />,
+			onClick: addMap,
+			preesed: editor.isActive("mapBlock"),
+			label: "Карта"
 		},
 	];
 

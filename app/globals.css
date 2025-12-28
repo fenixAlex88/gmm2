@@ -110,3 +110,7 @@ iframe::-webkit-scrollbar-thumb {
 .media-wrapper div.bg-slate-100.font-bold {
     display: none !important;
 }
+
+.leaflet-control-attribution.leaflet-control {
+  display: none !important;
+}

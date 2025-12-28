@@ -1,19 +1,30 @@
 import { prisma } from '@/lib/prisma';
-import parse from 'html-react-parser';
 import { notFound } from 'next/navigation';
 import { Tag as TagIcon, Sparkles } from 'lucide-react';
 import CommentSection from '@/components/CommentSection';
 import ArticleHero from '../components/ArticleHero';
 import ArticleActions from '../components/ArticleActions';
 import ArticleCard from '@/components/ArticleCard';
-import { getParserOptions } from '@/lib/parserOptions';
 import { IArticle } from '@/interfaces/IArticle';
+import ArticleContent from '@/components/rich-text-editor/ArticleContent';
+import { Prisma } from '@/generated/prisma/client';
+
+// Определяем тип для статьи со всеми включенными связями
+type FullArticle = Prisma.ArticleGetPayload<{
+  include: {
+    section: true;
+    author: true;
+    tags: true;
+    comments: true;
+  };
+}>;
 
 export default async function ArticlePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const articleId = Number(id);
 
-  // 1. Атрымліваем бягучы артыкул
+  if (isNaN(articleId)) notFound();
+
   const article = await prisma.article.update({
     where: { id: articleId },
     data: { views: { increment: 1 } },
@@ -21,11 +32,9 @@ export default async function ArticlePage({ params }: { params: Promise<{ id: st
       section: true,
       author: true,
       tags: true,
-      places: true,
-      subjects: true,
       comments: { orderBy: { createdAt: 'desc' } }
     }
-  }).catch(() => null);
+  }).catch(() => null) as FullArticle | null; // Приводим к типу FullArticle
 
   if (!article) notFound();
 
@@ -35,34 +44,28 @@ export default async function ArticlePage({ params }: { params: Promise<{ id: st
       id: { not: articleId },
     },
     take: 3,
-    orderBy: {
-      views: 'desc',
-    },
-    include: {
-      section: true,
-    }
+    orderBy: { views: 'desc' },
+    include: { section: true }
   });
 
   return (
     <article className="min-h-screen bg-white">
+      {/* Теперь передаем объект без any */}
       <ArticleHero article={article} />
 
       <div className="mx-auto max-w-4xl px-6 py-16">
-        {/* Змест артыкула */}
         <div className="prose prose-slate prose-lg md:prose-xl max-w-none 
                         prose-headings:font-black prose-headings:text-slate-900
                         prose-a:text-amber-600 prose-img:rounded-3xl prose-img:shadow-xl">
-          {parse(article.contentHtml, getParserOptions())}
+          <ArticleContent html={article.contentHtml} />
         </div>
 
-        {/* Дзеянні (лайкі, шэрынг) */}
         <ArticleActions
           articleId={article.id}
           initialLikes={article.likes || 0}
           title={article.title}
         />
 
-        {/* Тэгі */}
         <footer className="mb-16">
           <div className="flex flex-wrap gap-3">
             {article.tags.map(tag => (
@@ -76,7 +79,6 @@ export default async function ArticlePage({ params }: { params: Promise<{ id: st
 
         <hr className="border-slate-100 mb-16" />
 
-        {/* БЛОК: Папулярнае ў раздзеле */}
         {popularArticles.length > 0 && (
           <section className="mb-24">
             <div className="flex items-center gap-3 mb-8">
@@ -84,7 +86,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ id: st
                 <Sparkles size={20} />
               </div>
               <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tight">
-                Папулярнае ў раздзеле &quot;{article.section?.name}&quot;
+                Популярное в разделе &quot;{article.section?.name}&quot;
               </h3>
             </div>
 
@@ -98,8 +100,8 @@ export default async function ArticlePage({ params }: { params: Promise<{ id: st
           </section>
         )}
 
-        {/* Каментары */}
         <div className="bg-slate-50 rounded-[3rem] p-8 md:p-12 shadow-inner">
+          {/* Передаем комментарии напрямую */}
           <CommentSection articleId={articleId} initialComments={article.comments} />
         </div>
       </div>
