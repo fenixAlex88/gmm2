@@ -8,8 +8,37 @@ import ArticleCard from '@/components/ArticleCard';
 import { IArticle } from '@/interfaces/IArticle';
 import ArticleContent from '@/app/(main)/articles/components/ArticleContent';
 import { Prisma } from '@/generated/prisma/client';
+import { Metadata } from 'next';
 
-// Определяем тип для статьи со всеми включенными связями
+
+export async function generateMetadata(
+  { params }: { params: Promise<{ id: string }> }
+): Promise<Metadata> {
+  const { id } = await params;
+  const articleId = Number(id);
+
+  if (isNaN(articleId)) return { title: 'Статья не найдена' };
+
+
+  const article = await prisma.article.findUnique({
+    where: { id: articleId },
+    select: { title: true }
+  });
+
+  if (!article) {
+    return { title: 'Статья не найдена' };
+  }
+
+  return {
+    title: `${article.title} | ГММ`,
+    description: `Читать статью: ${article.title}`,
+    openGraph: {
+      title: article.title,
+    }
+  };
+}
+
+
 type FullArticle = Prisma.ArticleGetPayload<{
   include: {
     section: true;
