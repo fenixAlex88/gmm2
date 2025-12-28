@@ -4,7 +4,11 @@ import {
 	Highlighter, Images, Italic, List, ListOrdered, Strikethrough,
 	Video, Music, FileText,
 	MapIcon,
-	Columns
+	Columns,
+	ChevronUp,
+	ChevronDown,
+	LinkIcon,
+	Unlink
 } from 'lucide-react';
 import React from 'react'
 import { Editor } from '@tiptap/react';
@@ -14,6 +18,26 @@ import { uploadFiles } from '@/helpers/uploadFiles';
 export default function MenuBar({ editor }: { editor: Editor }) {
 	if (!editor) return null;
 
+	const changeFontSize = (delta: number) => {
+		const currentSize = editor.getAttributes('textStyle').fontSize;
+		const currentNumber = currentSize ? parseInt(currentSize) : 16; // 16px по умолчанию
+		const newSize = `${currentNumber + delta}px`;
+
+		editor.chain().focus().setFontSize(newSize).run();
+	};
+
+	const setLink = () => {
+		const previousUrl = editor.getAttributes('link').href;
+		const url = prompt('Введите URL (например, https://google.com):', previousUrl);
+
+		if (url === null) return;
+
+		if (url === '') {
+			editor.chain().focus().extendMarkRange('link').unsetLink().run();
+			return;
+		}
+		editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
+	};
 
 	const addMap = () => {
 		const jsonStr = prompt(
@@ -159,6 +183,18 @@ export default function MenuBar({ editor }: { editor: Editor }) {
 			preesed: editor.isActive("strike"),
 		},
 		{
+			icon: <ChevronUp className="size-4" />,
+			onClick: () => changeFontSize(2),
+			preesed: false,
+			label: "Увеличить шрифт"
+		},
+		{
+			icon: <ChevronDown className="size-4" />,
+			onClick: () => changeFontSize(-2),
+			preesed: false,
+			label: "Уменьшить шрифт"
+		},
+		{
 			icon: <AlignLeft className="size-4" />,
 			onClick: () => editor.chain().focus().setTextAlign("left").run(),
 			preesed: editor.isActive({ textAlign: "left" }),
@@ -182,6 +218,18 @@ export default function MenuBar({ editor }: { editor: Editor }) {
 			icon: <ListOrdered className="size-4" />,
 			onClick: () => editor.chain().focus().toggleOrderedList().run(),
 			preesed: editor.isActive("orderedList"),
+		},
+		{
+			icon: <LinkIcon className="size-4" />,
+			onClick: setLink,
+			preesed: editor.isActive('link'),
+			label: "Вставить ссылку"
+		},
+		{
+			icon: <Unlink className="size-4" />,
+			onClick: () => editor.chain().focus().unsetLink().run(),
+			preesed: false,
+			label: "Удалить ссылку"
 		},
 		{
 			icon: <Highlighter className="size-4" />,

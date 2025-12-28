@@ -11,6 +11,8 @@ import { Carousel } from './Carousel';
 import { VideoExtension, AudioExtension, PdfExtension } from './MediaExtensions';
 import { MapExtension } from './MapExtension';
 import { ColumnExtension, ColumnsExtension } from './ColumnsExtension';
+import { FontSize, TextStyle } from '@tiptap/extension-text-style';
+import Link from '@tiptap/extension-link';
 
 interface RichTextEditorProps {
 	content: string;
@@ -39,8 +41,17 @@ export default function RichTextEditor({ content, onChange }: RichTextEditorProp
 					}
 				}
 			}),
+			TextStyle,
+			FontSize,
 			TextAlign.configure({
 				types: ['heading', 'paragraph'],
+			}),
+			Link.configure({
+				openOnClick: false,
+				HTMLAttributes: {
+					class: 'text-blue-600 underline cursor-pointer',
+				},
+				autolink: true,
 			}),
 			Highlight,
 			Image,
@@ -89,6 +100,7 @@ export default function RichTextEditor({ content, onChange }: RichTextEditorProp
 
 	return (
 		<div className="w-full">	
+			{editor && <MenuBar editor={editor} />}
 			<EditorContent editor={editor} />
 			{editor && <MenuBar editor={editor} />}
 		</div>
