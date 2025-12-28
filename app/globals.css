@@ -114,3 +114,26 @@ iframe::-webkit-scrollbar-thumb {
 .leaflet-control-attribution.leaflet-control {
   display: none !important;
 }
+
+.prose div[data-type="columns"] {
+    display: grid;
+    gap: 1rem;
+}
+
+@media (min-width: 768px) {
+    .prose div[data-type="columns"] {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+.ProseMirror div[data-type="column"] {
+    border: 2px dashed #cbd5e1;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    position: relative;
+    transition: border-color 0.2s;
+}
+
+.ProseMirror div[data-type="column"]:hover {
+    border-color: #94a3b8;
+}

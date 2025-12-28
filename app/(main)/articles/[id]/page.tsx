@@ -6,7 +6,7 @@ import ArticleHero from '../components/ArticleHero';
 import ArticleActions from '../components/ArticleActions';
 import ArticleCard from '@/components/ArticleCard';
 import { IArticle } from '@/interfaces/IArticle';
-import ArticleContent from '@/components/rich-text-editor/ArticleContent';
+import ArticleContent from '@/app/(main)/articles/components/ArticleContent';
 import { Prisma } from '@/generated/prisma/client';
 
 // Определяем тип для статьи со всеми включенными связями
@@ -53,7 +53,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ id: st
       {/* Теперь передаем объект без any */}
       <ArticleHero article={article} />
 
-      <div className="mx-auto max-w-4xl px-6 py-16">
+      <div className="mx-auto max-w-6xl px-6 py-16">
         <div className="prose prose-slate prose-lg md:prose-xl max-w-none 
                         prose-headings:font-black prose-headings:text-slate-900
                         prose-a:text-amber-600 prose-img:rounded-3xl prose-img:shadow-xl">

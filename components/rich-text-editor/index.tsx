@@ -10,6 +10,7 @@ import Image from '@tiptap/extension-image';
 import { Carousel } from './Carousel';
 import { VideoExtension, AudioExtension, PdfExtension } from './MediaExtensions';
 import { MapExtension } from './MapExtension';
+import { ColumnExtension, ColumnsExtension } from './ColumnsExtension';
 
 interface RichTextEditorProps {
 	content: string;
@@ -48,6 +49,8 @@ export default function RichTextEditor({ content, onChange }: RichTextEditorProp
 			AudioExtension,
 			PdfExtension,
 			MapExtension,
+			ColumnsExtension,
+			ColumnExtension,
 		],
 		content: content,
 
@@ -85,9 +88,9 @@ export default function RichTextEditor({ content, onChange }: RichTextEditorProp
 	}
 
 	return (
-		<div className="w-full">
-			{editor && <MenuBar editor={editor} />}
+		<div className="w-full">	
 			<EditorContent editor={editor} />
+			{editor && <MenuBar editor={editor} />}
 		</div>
 	)
 }

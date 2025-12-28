@@ -3,7 +3,8 @@ import {
 	AlignCenter, AlignLeft, AlignRight, Bold, Heading1, Heading2, Heading3,
 	Highlighter, Images, Italic, List, ListOrdered, Strikethrough,
 	Video, Music, FileText,
-	MapIcon
+	MapIcon,
+	Columns
 } from 'lucide-react';
 import React from 'react'
 import { Editor } from '@tiptap/react';
@@ -15,21 +16,52 @@ export default function MenuBar({ editor }: { editor: Editor }) {
 
 
 	const addMap = () => {
-		const coordsStr = prompt("Увядзіце каардынаты праз коску (lat, lng) і метку праз | (прыклад: 53.9,27.5|Мінск). Можна некалькі праз прабел.");
-		if (!coordsStr) return;
+		const jsonStr = prompt(
+			"Вставьте массив маркеров в формате JSON.\nПример: [{\"lat\": 53.9, \"lng\": 27.5, \"label\": \"Минск\"}]"
+		);
 
-		const markers = coordsStr.split(' ').map(item => {
-			const [coords, label] = item.split('|');
-			const [lat, lng] = coords.split(',').map(Number);
-			return { lat, lng, label: label || '' };
-		}).filter(m => !isNaN(m.lat) && !isNaN(m.lng));
+		if (!jsonStr) return;
 
-		if (markers.length > 0) {
-			editor.chain().focus().insertContent({
-				type: 'mapBlock',
-				attrs: { markers }
-			}).run();
+		try {
+			const markers = JSON.parse(jsonStr);
+
+			// Проверка: является ли введенное значение массивом
+			if (!Array.isArray(markers)) {
+				alert("Ошибка: Ожидался массив [ {lat, lng, label}, ... ]");
+				return;
+			}
+
+			// Валидация данных внутри массива
+			const validMarkers = markers
+				.map(m => ({
+					lat: Number(m.lat),
+					lng: Number(m.lng),
+					label: String(m.label || '')
+				}))
+				.filter(m => !isNaN(m.lat) && !isNaN(m.lng));
+
+			if (validMarkers.length > 0) {
+				editor.chain().focus().insertContent({
+					type: 'mapBlock',
+					attrs: { markers: validMarkers }
+				}).run();
+			} else {
+				alert("Не найдено корректных координат в JSON.");
+			}
+		} catch (e) {
+			console.error("JSON parse error:", e);
+			alert("Ошибка в формате JSON. Проверьте кавычки и запятые.");
 		}
+	};
+
+	const addColumns = () => {
+		editor.chain().focus().insertContent({
+			type: 'columns',
+			content: [
+				{ type: 'column', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Левая колонка' }] }] },
+				{ type: 'column', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Правая колонка' }] }] },
+			]
+		}).run();
 	};
 
 	// --- Универсальная функция загрузки ---
@@ -155,6 +187,12 @@ export default function MenuBar({ editor }: { editor: Editor }) {
 			icon: <Highlighter className="size-4" />,
 			onClick: () => editor.chain().focus().toggleHighlight().run(),
 			preesed: editor.isActive("highlight"),
+		},
+		{
+			icon: <Columns className="size-4" />,
+			onClick: addColumns,
+			preesed: editor.isActive("columns"),
+			label: "Две колонки"
 		},
 		// --- МЕДИА БЛОК ---
 		{
