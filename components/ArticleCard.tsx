@@ -1,7 +1,8 @@
+'use client';
 import Image from 'next/image';
 import Link from 'next/link';
 import { IArticle } from '@/interfaces/IArticle';
-import { Calendar, Eye } from 'lucide-react';
+import { Calendar, Eye, Heart } from 'lucide-react'; // Добавили Heart
 
 interface ArticleCardProps {
 	article: IArticle;
@@ -12,7 +13,6 @@ export default function ArticleCard({ article }: ArticleCardProps) {
 		? article.section
 		: article.section?.name;
 
-	// Форматируем дату один раз
 	const formattedDate = article.updatedAt
 		? new Date(article.updatedAt).toLocaleDateString('ru-RU', {
 			day: '2-digit',
@@ -23,7 +23,7 @@ export default function ArticleCard({ article }: ArticleCardProps) {
 
 	return (
 		<Link href={`/articles/${article.id}`} className="group h-full block">
-			<div className="flex flex-col h-full bg-white border border-slate-100 rounded-[2rem] overflow-hidden transition-all duration-300 shadow-md hover:shadow-2xl hover:shadow-blue-100/50 hover:border-blue-200 isolate">
+			<div className="flex flex-col h-full bg-white border border-slate-100 rounded-[2rem] overflow-hidden transition-all duration-300 shadow-md hover:shadow-2xl hover:shadow-amber-100/50 hover:border-amber-200 isolate">
 
 				{/* Изображение */}
 				<div className="relative aspect-[16/10] w-full overflow-hidden bg-slate-50">
@@ -48,7 +48,7 @@ export default function ArticleCard({ article }: ArticleCardProps) {
 
 				{/* Контент */}
 				<div className="flex flex-col flex-grow p-6">
-					<h2 className="text-lg font-bold text-slate-900 leading-snug mb-4 line-clamp-2 group-hover:text-blue-600 transition-colors">
+					<h2 className="text-lg font-bold text-slate-900 leading-snug mb-4 line-clamp-2 group-hover:text-amber-600 transition-colors">
 						{article.title}
 					</h2>
 
@@ -63,12 +63,23 @@ export default function ArticleCard({ article }: ArticleCardProps) {
 							</span>
 						</div>
 
-						{/* Просмотры */}
-						<div className="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100">
-							<Eye size={14} className="text-slate-300" />
-							<span className="text-[11px] font-black text-slate-500 tabular-nums">
-								{(article.views || 0).toLocaleString()}
-							</span>
+						{/* Метрики (Просмотры и Лайки) */}
+						<div className="flex items-center gap-2">
+							{/* Просмотры */}
+							<div className="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100">
+								<Eye size={14} className="text-slate-300" />
+								<span className="text-[11px] font-black text-slate-500 tabular-nums">
+									{(article.views || 0).toLocaleString()}
+								</span>
+							</div>
+
+							{/* Лайки */}
+							<div className="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100">
+								<Heart size={13} className="text-slate-300 fill-slate-50" />
+								<span className="text-[11px] font-black text-slate-500 tabular-nums">
+									{(article.likes || 0).toLocaleString()}
+								</span>
+							</div>
 						</div>
 
 					</div>

@@ -16,7 +16,7 @@ export function Toggle({ pressed, onPressedChange, children }: ToggleProps) {
 			className={
 				"inline-flex items-center justify-center rounded-md p-2 transition-colors " +
 				(pressed
-					? "bg-blue-600 text-white"
+					? "bg-amber-600 text-white"
 					: "bg-gray-200 text-gray-700 hover:bg-gray-300")
 			}
 		>

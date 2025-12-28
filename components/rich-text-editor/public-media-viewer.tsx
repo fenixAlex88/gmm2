@@ -10,7 +10,7 @@ export const PublicPdf = ({ src }: { src: string }) => (
   <div className="my-12 border border-slate-200 rounded-2xl overflow-hidden shadow-lg bg-white">
     <div className="bg-slate-50 px-6 py-3 border-b flex justify-between items-center">
       <span className="font-bold text-slate-700">📄 Документ PDF</span>
-      <a href={src} download className="text-blue-600 text-sm hover:underline">Скачать оригинал</a>
+      <a href={src} download className="text-amber-600 text-sm hover:underline">Скачать оригинал</a>
     </div>
     <iframe src={`${src}#toolbar=0`} className="w-full h-[600px]" />
   </div>

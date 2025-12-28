@@ -84,12 +84,12 @@ export default function CommentSection({ articleId, initialComments }: CommentSe
 							value={text}
 							onChange={(e) => setText(e.target.value)}
 							placeholder="Напишите комментарий..."
-							className="w-full bg-white border-none rounded-2xl p-4 text-slate-600 focus:ring-2 focus:ring-blue-500 min-h-[100px] resize-none"
+							className="w-full bg-white border-none rounded-2xl p-4 text-slate-600 focus:ring-2 focus:ring-amber-500 min-h-[100px] resize-none"
 						/>
 						<button
 							type="submit"
 							disabled={isSending || !text.trim()}
-							className="mt-3 flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl font-bold transition-all disabled:opacity-50"
+							className="mt-3 flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white px-8 py-3 rounded-xl font-bold transition-all disabled:opacity-50"
 						>
 							{isSending ? 'Публикация...' : <><Send size={18} /> Отправить</>}
 						</button>
@@ -133,7 +133,7 @@ export default function CommentSection({ articleId, initialComments }: CommentSe
 				{hasMore && (
 					<button
 						onClick={() => setLimit(prev => prev + 5)}
-						className="w-full py-4 flex items-center justify-center gap-2 text-slate-400 font-bold hover:text-blue-600 transition-colors border-t border-slate-50 mt-4"
+						className="w-full py-4 flex items-center justify-center gap-2 text-slate-400 font-bold hover:text-amber-600 transition-colors border-t border-slate-50 mt-4"
 					>
 						Показать еще <ChevronDown size={18} />
 					</button>

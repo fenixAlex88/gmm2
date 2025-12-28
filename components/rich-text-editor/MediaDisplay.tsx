@@ -9,7 +9,7 @@ export const VideoDisplay = ({ src }: { src: string }) => (
 
 export const AudioDisplay = ({ src }: { src: string }) => (
 	<div className="my-10 p-6 bg-gradient-to-r from-slate-50 to-white rounded-3xl border border-slate-200 shadow-sm flex items-center gap-4">
-		<div className="bg-blue-600 p-3 rounded-full text-white shadow-md">
+		<div className="bg-amber-600 p-3 rounded-full text-white shadow-md">
 			<Music size={24} />
 		</div>
 		<audio src={src} controls className="flex-1" />

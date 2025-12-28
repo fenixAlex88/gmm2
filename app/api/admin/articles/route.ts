@@ -12,6 +12,8 @@ interface ArticleInput {
 	imageUrl?: string | null;
 	authorName?: string | null;
 	tagNames?: string[];
+	placeNames?: string[];
+	subjectNames?: string[]; 
 }
 
 // Извлекаем файлы из HTML с типами
@@ -53,7 +55,7 @@ async function deleteFile(fileUrl: string | null | undefined) {
 export async function GET() {
 	try {
 		const articles = await prisma.article.findMany({
-			include: { section: true, author: true, tags: true },
+			include: { section: true, author: true, tags: true, places: true, subjects: true },
 			orderBy: { id: 'desc' },
 		});
 		return NextResponse.json(articles);
@@ -65,7 +67,10 @@ export async function GET() {
 export async function POST(req: Request) {
 	try {
 		const data: ArticleInput = await req.json();
-		const { title, contentHtml, sectionId, imageUrl, authorName, tagNames = [] } = data;
+		const {
+			title, contentHtml, sectionId, imageUrl,
+			authorName, tagNames = [], placeNames = [], subjectNames = []
+		} = data;
 
 		const article = await prisma.article.create({
 			data: {
@@ -84,9 +89,21 @@ export async function POST(req: Request) {
 						where: { name },
 						create: { name }
 					}))
+				},
+				places: {
+					connectOrCreate: placeNames.map(name => ({
+						where: { name },
+						create: { name }
+					}))
+				},
+				subjects: {
+					connectOrCreate: subjectNames.map(name => ({
+						where: { name },
+						create: { name }
+					}))
 				}
 			},
-			include: { section: true, author: true, tags: true }
+			include: { section: true, author: true, tags: true, places: true, subjects: true }
 		});
 		return NextResponse.json(article);
 	} catch (error) {
@@ -98,7 +115,10 @@ export async function POST(req: Request) {
 export async function PUT(req: Request) {
 	try {
 		const data: ArticleInput = await req.json();
-		const { id, title, contentHtml, sectionId, imageUrl, authorName, tagNames = [] } = data;
+		const {
+			id, title, contentHtml, sectionId, imageUrl,
+			authorName, tagNames = [], placeNames = [], subjectNames = []
+		} = data;
 
 		const oldArticle = await prisma.article.findUnique({
 			where: { id },
@@ -125,14 +145,28 @@ export async function PUT(req: Request) {
 					}
 				} : { disconnect: true },
 				tags: {
-					set: [],
+					set: [], // Очищаем старые связи
 					connectOrCreate: tagNames.map(name => ({
+						where: { name },
+						create: { name }
+					}))
+				},
+				places: {
+					set: [], // Очищаем старые связи
+					connectOrCreate: placeNames.map(name => ({
+						where: { name },
+						create: { name }
+					}))
+				},
+				subjects: {
+					set: [], // Очищаем старые связи
+					connectOrCreate: subjectNames.map(name => ({
 						where: { name },
 						create: { name }
 					}))
 				}
 			},
-			include: { section: true, author: true, tags: true }
+			include: { section: true, author: true, tags: true, places: true, subjects: true }
 		});
 		return NextResponse.json(updated);
 	} catch (error) {

@@ -72,7 +72,7 @@ export default async function ArticlePage({ params }: PageProps) {
 
         <div className="relative max-w-5xl mx-auto px-6 pb-12 w-full">
           <div className="flex flex-col items-start gap-4">
-            <span className="bg-blue-600 text-white px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest shadow-lg">
+            <span className="bg-amber-600 text-white px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest shadow-lg">
               {article.section?.name || 'Общее'}
             </span>
 
@@ -86,12 +86,12 @@ export default async function ArticlePage({ params }: PageProps) {
                             filter drop-shadow-[0_1px_1px_rgba(0,0,0,1)]">
               {article.author && (
                 <div className="flex items-center gap-2">
-                  <UserIcon size={18} className="text-blue-400" />
+                  <UserIcon size={18} className="text-amber-400" />
                   <span>{article.author.name}</span>
                 </div>
               )}
               <div className="flex items-center gap-2">
-                <Calendar size={18} className="text-blue-400" />
+                <Calendar size={18} className="text-amber-400" />
                 <span>{new Date(article.updatedAt).toLocaleDateString()}</span>
               </div>
               <div className="flex items-center gap-2 bg-black/30 backdrop-blur-sm px-3 py-1 rounded-lg">
@@ -107,7 +107,7 @@ export default async function ArticlePage({ params }: PageProps) {
       <div className="mx-auto max-w-4xl px-6 py-16">
         <div className="prose prose-slate prose-lg md:prose-xl max-w-none 
                         prose-headings:font-black prose-headings:text-slate-900
-                        prose-a:text-blue-600 prose-img:rounded-3xl prose-img:shadow-xl">
+                        prose-a:text-amber-600 prose-img:rounded-3xl prose-img:shadow-xl">
           {parse(article.contentHtml, options)}
         </div>
 
@@ -117,7 +117,7 @@ export default async function ArticlePage({ params }: PageProps) {
             {article.tags.map(tag => (
               <div key={tag.id} className="flex items-center gap-2 bg-slate-50 hover:bg-slate-100 
                                           text-slate-600 px-4 py-2 rounded-2xl text-sm font-bold transition-colors border border-slate-100">
-                <TagIcon size={14} className="text-blue-500" />
+                <TagIcon size={14} className="text-amber-500" />
                 {tag.name}
               </div>
             ))}

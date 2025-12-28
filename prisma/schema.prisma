@@ -8,25 +8,46 @@ datasource db {
 }
 
 model Article {
-  id           Int       @id @default(autoincrement())
-  title        String
-  imageUrl     String?
-  contentHtml  String
-  views        Int       @default(0)
-  updatedAt    DateTime  @updatedAt @default(now())
+  id          Int       @id @default(autoincrement())
+  title       String
+  imageUrl    String?
+  contentHtml String
+  views       Int       @default(0)
+  likes       Int       @default(0) // Счетчик лайков
+  updatedAt   DateTime  @updatedAt @default(now())
   
-  // Связь с автором
-  authorId     Int?
-  author       Author?   @relation(fields: [authorId], references: [id])
+  authorId    Int?
+  author      Author?   @relation(fields: [authorId], references: [id])
   
-  // Связь с тегами (многие ко многим)
-  tags         Tag[]
+  tags        Tag[]
   
-  sectionId    Int
-  section      Section   @relation(fields: [sectionId], references: [id])
-  comments     Comment[]
+  // Связь с субъектами (о ком)
+  subjects    Subject[] 
+  
+  // Связь с местами
+  places      Place[]   
+
+  sectionId   Int
+  section     Section   @relation(fields: [sectionId], references: [id])
+  comments    Comment[]
 
   @@map("articles")
+}
+
+model Subject {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  articles Article[]
+
+  @@map("subjects")
+}
+
+model Place {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  articles Article[]
+
+  @@map("places")
 }
 
 model Author {

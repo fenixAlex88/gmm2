@@ -7,16 +7,16 @@ export const VideoView = (props: NodeViewProps) => {
 	const { src } = props.node.attrs;
 	return (
 		<NodeViewWrapper className="my-8 block">
-				{src ? (
-					<div className='m-8'>
-						<video src={src} controls className="w-full h-full" />
-					</div>
-				) : (
-					<div className="text-white flex flex-col items-center">
-						<Film size={48} />
-						<p>Видео не загружено</p>
-					</div>
-				)}
+			{src ? (
+				<div className='m-8'>
+					<video src={src} controls className="w-full h-full" />
+				</div>
+			) : (
+				<div className="text-white flex flex-col items-center">
+					<Film size={48} />
+					<p>Видео не загружено</p>
+				</div>
+			)}
 		</NodeViewWrapper>
 	);
 };
@@ -25,7 +25,7 @@ export const VideoView = (props: NodeViewProps) => {
 export const AudioView = (props: NodeViewProps) => {
 	const { src } = props.node.attrs;
 	return (
-		<NodeViewWrapper className="my-4 p-4 bg-slate-200 rounded-lg border-2 border-blue-500 flex items-center gap-4">
+		<NodeViewWrapper className="my-4 p-4 bg-slate-200 rounded-lg border-2 border-amber-500 flex items-center gap-4">
 			<Music className="text-slate-600" />
 			<audio src={src} controls className="flex-1" />
 		</NodeViewWrapper>

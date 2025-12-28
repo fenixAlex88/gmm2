@@ -45,6 +45,16 @@ export { Prisma }
  */
 export type Article = Prisma.ArticleModel
 /**
+ * Model Subject
+ * 
+ */
+export type Subject = Prisma.SubjectModel
+/**
+ * Model Place
+ * 
+ */
+export type Place = Prisma.PlaceModel
+/**
  * Model Author
  * 
  */
