@@ -62,7 +62,7 @@ export default function CommentSection({ articleId, initialComments }: CommentSe
 					<MessageCircle size={24} />
 				</div>
 				<h3 className="text-2xl font-black text-slate-900">
-					Обсуждение ({comments.length})
+					Абмеркаванне ({comments.length})
 				</h3>
 			</div>
 
@@ -83,7 +83,7 @@ export default function CommentSection({ articleId, initialComments }: CommentSe
 						<textarea
 							value={text}
 							onChange={(e) => setText(e.target.value)}
-							placeholder="Напишите комментарий..."
+							placeholder="Ваш каментарый..."
 							className="w-full bg-white border-none rounded-2xl p-4 text-slate-600 focus:ring-2 focus:ring-amber-500 min-h-[100px] resize-none"
 						/>
 						<button
@@ -91,7 +91,7 @@ export default function CommentSection({ articleId, initialComments }: CommentSe
 							disabled={isSending || !text.trim()}
 							className="mt-3 flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white px-8 py-3 rounded-xl font-bold transition-all disabled:opacity-50"
 						>
-							{isSending ? 'Публикация...' : <><Send size={18} /> Отправить</>}
+							{isSending ? 'Публікацыя...' : <><Send size={18} /> Адправіць</>}
 						</button>
 					</form>
 				) : (

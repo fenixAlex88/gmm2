@@ -16,10 +16,10 @@ export default function SortSelect({ value, onChange }: Props) {
 					onChange={e => onChange(e.target.value)}
 					className="w-full lg:w-[240px] pl-3 pr-10 py-2 bg-white border border-slate-200 rounded-xl text-sm font-medium outline-none cursor-pointer h-[38px] appearance-none hover:border-slate-300 transition-colors shadow-sm"
 				>
-					<option value="newest">Сначала новые</option>
-					<option value="views">По популярности</option>
-					<option value="likes">По лайкам</option>
-					<option value="oldest">Сначала старые</option>
+					<option value="newest">Спачатку новыя</option>
+					<option value="views">Па папулярнасці</option>
+					<option value="likes">Па лайках</option>
+					<option value="oldest">Спачатку старыя</option>
 				</select>
 
 				{/* Кастомная стрелочка, так как стандартную мы скрыли через appearance-none */}

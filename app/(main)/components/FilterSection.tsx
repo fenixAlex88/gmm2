@@ -73,29 +73,29 @@ export default function FilterSection({ sections, options, filters, updateFilter
 			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 				<div className="space-y-1.5">
 					<label className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
-						<Filter size={12} /> Раздел
+						<Filter size={12} /> Сэнс
 					</label>
 					<select
 						value={filters.sectionId || ''}
 						onChange={(e) => updateFilter('sectionId', e.target.value ? Number(e.target.value) : null)}
 						className="w-full p-2.5 bg-white border border-slate-200 rounded-xl text-[12px] outline-none h-[38px] cursor-pointer hover:border-slate-300 transition-colors"
 					>
-						<option value="">Все разделы</option>
+						<option value="">Усе</option>
 						{sections.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
 					</select>
 				</div>
 
-				<FilterItem label="Авторы" icon={User}>
+				<FilterItem label="Аўтар" icon={User}>
 					<CreatableSelect isMulti options={options.authors} value={filters.authors} instanceId="authors-select"
 						onChange={handleChange('authors')} styles={selectStyles} placeholder="Поиск..." />
 				</FilterItem>
 
-				<FilterItem label="Места" icon={MapPin}>
+				<FilterItem label="Месца" icon={MapPin}>
 					<CreatableSelect isMulti options={options.places} value={filters.places} instanceId="filters-select"
 						onChange={handleChange('places')} styles={selectStyles} placeholder="Поиск..." />
 				</FilterItem>
 
-				<FilterItem label="Субъекты" icon={BookOpen}>
+				<FilterItem label="Генiй" icon={BookOpen}>
 					<CreatableSelect isMulti options={options.subjects} value={filters.subjects} instanceId="subjects-select"
 						onChange={handleChange('subjects')} styles={selectStyles} placeholder="Поиск..." />
 				</FilterItem>
@@ -105,14 +105,14 @@ export default function FilterSection({ sections, options, filters, updateFilter
 			<div className="pt-4 border-t border-slate-200/60">
 				<div className="flex items-center justify-between mb-3">
 					<label className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400 ml-1">
-						<Hash size={12} /> Теги {filters.tags.length > 0 && <span className="text-amber-500">({filters.tags.length})</span>}
+						<Hash size={12} /> Шукаць па тэгах {filters.tags.length > 0 && <span className="text-amber-500">({filters.tags.length})</span>}
 					</label>
 					{options.tags.length > 8 && (
 						<button
 							onClick={() => setIsTagsExpanded(!isTagsExpanded)}
 							className="flex items-center gap-1 text-[10px] font-bold text-amber-600 hover:text-amber-700 uppercase"
 						>
-							{isTagsExpanded ? <><ChevronUp size={12} /> Свернуть</> : <><ChevronDown size={12} /> Показать все ({options.tags.length})</>}
+							{isTagsExpanded ? <><ChevronUp size={12} /> Згарнуць</> : <><ChevronDown size={12} /> Паказаць усё ({options.tags.length})</>}
 						</button>
 					)}
 				</div>
