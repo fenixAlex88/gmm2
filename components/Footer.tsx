@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import AboutProjectModal from './AboutProjectModal';
+import AboutProjectModal from './modals/AboutProjectModal';
 import { useState } from 'react';
 
 const Footer: React.FC = () => {

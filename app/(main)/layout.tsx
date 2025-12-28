@@ -3,8 +3,9 @@ import "../globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ScrollToTopButton from '@/components/ScrollToTopButton';
-import SideMenu from '@/components/SideMenu';
 import { Providers } from '@/components/Providers';
+import NavigationBar from '@/components/NavigationBar';
+
 
 export const metadata: Metadata = {
   title: "Геній майго месца / Гений моего места / ГММ",
@@ -19,21 +20,20 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="be">
-      <body className="flex min-h-screen">
-        <SideMenu />
-        <div className="flex flex-col flex-1 min-h-screen lg:pl-64 md:pl-16 pl-0">
+      <body className="flex min-h-screen bg-slate-50">
+        <div className="flex flex-col flex-1 min-h-screen">
           <Header />
-          <main className="flex-grow container mx-auto px-4">
+          <NavigationBar />
+
+          <main className="flex-grow w-full">
             <Providers>
-               {children}
+              {children}
             </Providers>
           </main>
           <ScrollToTopButton />
           <Footer />
         </div>
       </body>
-
-
     </html>
   );
 }
