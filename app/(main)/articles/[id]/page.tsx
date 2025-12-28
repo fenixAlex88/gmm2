@@ -115,7 +115,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ id: st
                 <Sparkles size={20} />
               </div>
               <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tight">
-                Популярное в разделе &quot;{article.section?.name}&quot;
+                Вам можа спадабацца:
               </h3>
             </div>
 

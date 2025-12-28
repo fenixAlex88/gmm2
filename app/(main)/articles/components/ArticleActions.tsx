@@ -99,7 +99,7 @@ export default function ArticleActions({ articleId, initialLikes, title }: Props
 						onClick={copyToClipboard}
 						className={`p-2.5 rounded-xl transition-all border ${copied ? 'bg-green-500 border-green-500 text-white' : 'bg-white border-slate-200 text-slate-400 hover:text-slate-600'
 							}`}
-						title="Скопировать ссылку"
+						title="Скапіяваць спасылку"
 					>
 						{copied ? <Check size={18} /> : <LinkIcon size={18} />}
 					</button>
@@ -114,7 +114,7 @@ export default function ArticleActions({ articleId, initialLikes, title }: Props
 								}`}
 						>
 							<Share2 size={18} />
-							<span className="hidden sm:inline">Поделиться</span>
+							<span className="hidden sm:inline">Падзяліцца</span>
 							<ChevronDown size={16} className={`transition-transform duration-300 ${isMenuOpen ? 'rotate-180' : ''}`} />
 						</button>
 
@@ -136,7 +136,7 @@ export default function ArticleActions({ articleId, initialLikes, title }: Props
 									))}
 								</div>
 								<div className="mt-2 pt-2 border-t border-slate-50 px-2 pb-1">
-									<p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">Выберите платформу</p>
+									<p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">Выберыце платформу</p>
 								</div>
 							</div>
 						)}
