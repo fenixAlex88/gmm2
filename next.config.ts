@@ -7,6 +7,8 @@ const nextConfig = {
     },
   },
   images: {
+    formats: ['image/avif', 'image/webp'],
+    qualities: [10, 20, 50, 75, 90],
     remotePatterns: [
       { protocol: 'https', hostname: 'optim.tildacdn.biz' },
       { protocol: 'https', hostname: 'static.tildacdn.biz' },

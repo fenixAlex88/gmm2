@@ -1,99 +1,92 @@
+// app/(main)/articles/[id]/page.tsx
 import { prisma } from '@/lib/prisma';
 import { notFound } from 'next/navigation';
-import { Tag as TagIcon, Sparkles } from 'lucide-react';
+import { unstable_cache } from 'next/cache';
+import { Sparkles, TagIcon } from 'lucide-react';
 import CommentSection from '@/components/CommentSection';
 import ArticleHero from '../components/ArticleHero';
 import ArticleActions from '../components/ArticleActions';
 import ArticleCard from '@/components/ArticleCard';
-import { IArticle } from '@/interfaces/IArticle';
 import ArticleContent from '@/app/(main)/articles/components/ArticleContent';
-import { Prisma } from '@/generated/prisma/client';
+import { IArticle } from '@/interfaces/IArticle';
 import { Metadata } from 'next';
+import ViewCounter from '../components/ViewCounter';
 
-
-export async function generateMetadata(
-  { params }: { params: Promise<{ id: string }> }
-): Promise<Metadata> {
-  const { id } = await params;
-  const articleId = Number(id);
-
-  if (isNaN(articleId)) return { title: 'Статья не найдена' };
-
-
-  const article = await prisma.article.findUnique({
-    where: { id: articleId },
-    select: { title: true }
-  });
-
-  if (!article) {
-    return { title: 'Статья не найдена' };
+// Кэшируем "тяжелые" данные статьи на 1 час
+const getCachedArticle = (id: number) => unstable_cache(
+  async () => {
+    return await prisma.article.findUnique({
+      where: { id },
+      include: {
+        section: true,
+        author: true,
+        tags: true,
+        places: true,
+        subjects: true,
+      }
+    });
+  },
+  [`article-${id}`],
+  {
+    revalidate: 3600,
+    tags: ['articles', `article-${id}`]
   }
+)();
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params;
+  const article = await getCachedArticle(Number(id));
+  if (!article) return { title: 'Статья не найдена' };
 
   return {
     title: `${article.title} | ГММ`,
-    description: `Читать статью: ${article.title}`,
-    openGraph: {
-      title: article.title,
-    }
+    description: article.contentHtml.replace(/<[^>]*>/g, '').slice(0, 160),
   };
 }
-
-
-type FullArticle = Prisma.ArticleGetPayload<{
-  include: {
-    section: true;
-    author: true;
-    tags: true;
-    comments: true;
-  };
-}>;
 
 export default async function ArticlePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const articleId = Number(id);
-
   if (isNaN(articleId)) notFound();
 
-  const article = await prisma.article.update({
-    where: { id: articleId },
-    data: { views: { increment: 1 } },
-    include: {
-      section: true,
-      author: true,
-      tags: true,
-      comments: { orderBy: { createdAt: 'desc' } }
-    }
-  }).catch(() => null) as FullArticle | null; // Приводим к типу FullArticle
-
+  // 1. Получаем данные статьи (из кэша)
+  const article = await getCachedArticle(articleId);
   if (!article) notFound();
 
-  const popularArticles = await prisma.article.findMany({
-    where: {
-      sectionId: article.sectionId,
-      id: { not: articleId },
-    },
-    take: 3,
-    orderBy: { views: 'desc' },
-    include: { section: true }
-  });
+  // 2. Получаем динамические данные (всегда свежие)
+  // Мы запрашиваем только счетчики и комментарии
+  const [dynamicData, popularArticles] = await Promise.all([
+    prisma.article.findUnique({
+      where: { id: articleId },
+      select: { views: true, likes: true, comments: { orderBy: { createdAt: 'desc' } } }
+    }),
+    prisma.article.findMany({
+      where: { sectionId: article.sectionId, id: { not: articleId } },
+      take: 3,
+      orderBy: { views: 'desc' },
+      include: { section: true, author: true }
+    })
+  ]);
 
   return (
     <article className="min-h-screen bg-white">
-      {/* Теперь передаем объект без any */}
-      <ArticleHero article={article} />
+      {/* Компонент, который вызовет incrementViewsAction на клиенте */}
+      <ViewCounter articleId={articleId} />
 
-      <div className="mx-auto max-w-6xl px-6 py-16">
-        <div className="prose prose-slate prose-lg md:prose-xl max-w-none 
-                        prose-headings:font-black prose-headings:text-slate-900
-                        prose-a:text-amber-600 prose-img:rounded-3xl prose-img:shadow-xl">
+      <ArticleHero article={{ ...article, views: dynamicData?.views || 0 } as unknown as IArticle} />
+
+      <div className="mx-auto max-w-6xl px-6 py-12">
+        <div className="prose prose-slate prose-lg md:prose-xl max-w-none prose-img:rounded-[2.5rem] prose-img:shadow-2xl">
           <ArticleContent html={article.contentHtml} />
         </div>
 
-        <ArticleActions
-          articleId={article.id}
-          initialLikes={article.likes || 0}
-          title={article.title}
-        />
+        <div className="mt-16">
+          <ArticleActions
+            articleId={article.id}
+            initialLikes={dynamicData?.likes || 0}
+            title={article.title}
+          />
+        </div>
 
         {article?.tags?.length > 0 && (
           <>
@@ -115,32 +108,28 @@ export default async function ArticlePage({ params }: { params: Promise<{ id: st
           </>
         )}
 
-
-
+        {/* Секция похожих статей */}
         {popularArticles.length > 0 && (
-          <section className="mb-24">
-            <div className="flex items-center gap-3 mb-8">
-              <div className="p-2 bg-amber-100 rounded-xl text-amber-600">
-                <Sparkles size={20} />
+          <section className="mt-24 mb-24">
+            <div className="flex items-center gap-3 mb-10">
+              <div className="p-2.5 bg-amber-100 rounded-2xl text-amber-600">
+                <Sparkles size={24} />
               </div>
-              <h3 className="text-2xl font-black text-slate-900 uppercase tracking-tight">
-                Вам можа спадабацца:
-              </h3>
+              <h3 className="text-3xl font-black text-slate-900 uppercase tracking-tighter">Вам можа спадабацца</h3>
             </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {popularArticles.map((popArticle) => (
-                <div key={popArticle.id} className="flex flex-col h-full">
-                  <ArticleCard article={popArticle as unknown as IArticle} />
-                </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+              {popularArticles.map((pop) => (
+                <ArticleCard key={pop.id} article={pop as unknown as IArticle} />
               ))}
             </div>
           </section>
         )}
 
-        <div className="bg-slate-50 rounded-[3rem] p-8 md:p-12 shadow-inner">
-          {/* Передаем комментарии напрямую */}
-          <CommentSection articleId={articleId} initialComments={article.comments} />
+        <div className="bg-slate-50 rounded-[4rem] p-8 md:p-16 border border-slate-100">
+          <CommentSection
+            articleId={articleId}
+            initialComments={JSON.parse(JSON.stringify(dynamicData?.comments || []))}
+          />
         </div>
       </div>
     </article>

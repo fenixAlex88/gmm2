@@ -99,10 +99,13 @@ export default function RichTextEditor({ content, onChange }: RichTextEditorProp
 	}
 
 	return (
-		<div className="w-full">	
-			{editor && <MenuBar editor={editor} />}
+		<div className="w-full relative"> 
+			{editor && (
+				<div className="sticky top-[-40px] z-[1000] bg-white border-b shadow-sm rounded-t-lg overflow-hidden">
+					<MenuBar editor={editor} />
+				</div>
+			)}
 			<EditorContent editor={editor} />
-			{editor && <MenuBar editor={editor} />}
 		</div>
 	)
 }
