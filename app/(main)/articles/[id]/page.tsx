@@ -95,18 +95,27 @@ export default async function ArticlePage({ params }: { params: Promise<{ id: st
           title={article.title}
         />
 
-        <footer className="mb-16">
-          <div className="flex flex-wrap gap-3">
-            {article.tags.map(tag => (
-              <div key={tag.id} className="flex items-center gap-2 bg-slate-50 text-slate-600 px-4 py-2 rounded-2xl text-sm font-bold border border-slate-100">
-                <TagIcon size={14} className="text-amber-500" />
-                {tag.name}
+        {article?.tags?.length > 0 && (
+          <>
+            <div className="mb-16">
+              <div className="flex flex-wrap gap-3">
+                {article.tags.map(tag => (
+                  <div
+                    key={tag.id}
+                    className="flex items-center gap-2 bg-slate-50 text-slate-600 px-4 py-2 rounded-2xl text-sm font-bold border border-slate-100"
+                  >
+                    <TagIcon size={14} className="text-amber-500" />
+                    {tag.name}
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
-        </footer>
+            </div>
 
-        <hr className="border-slate-100 mb-16" />
+            <hr className="border-slate-100 mb-16" />
+          </>
+        )}
+
+
 
         {popularArticles.length > 0 && (
           <section className="mb-24">
