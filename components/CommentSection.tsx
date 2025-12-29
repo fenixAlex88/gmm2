@@ -97,7 +97,7 @@ export default function CommentSection({ articleId, initialComments }: CommentSe
 				) : (
 					<div className="text-center p-8 bg-slate-50 rounded-[2rem] border-2 border-dashed border-slate-200">
 						<button onClick={() => signIn('google')} className="bg-white border px-6 py-2 rounded-xl font-bold hover:bg-slate-50 transition-all">
-							Войти, чтобы комментировать
+								Увайсці, каб каментаваць
 						</button>
 					</div>
 				)}

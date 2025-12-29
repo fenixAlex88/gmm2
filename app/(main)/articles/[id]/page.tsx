@@ -121,7 +121,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ id: st
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {popularArticles.map((popArticle) => (
-                <div key={popArticle.id} className="flex h-full">
+                <div key={popArticle.id} className="flex flex-col h-full">
                   <ArticleCard article={popArticle as unknown as IArticle} />
                 </div>
               ))}

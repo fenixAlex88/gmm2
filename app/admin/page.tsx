@@ -276,7 +276,7 @@ export default function AdminPage() {
 							{form.id ? <Edit3 size={20} /> : <Plus size={20} />}
 						</div>
 						<h1 className="text-xl font-black text-slate-800 uppercase tracking-tight">
-							{form.id ? 'Редактирование' : 'Новый черновик'}
+							{form.id ? 'Редактирование' : 'Новае падарожжа'}
 						</h1>
 					</div>
 					<div className="flex items-center gap-3">
@@ -348,7 +348,7 @@ export default function AdminPage() {
 						{/* New Metadata Grid: Places & Subjects */}
 						<div className="grid grid-cols-2 gap-8">
 							<div className="space-y-2">
-								<label className="flex items-center gap-2 text-[10px] font-black uppercase text-slate-400"><MapPin size={12} /> Место / Геолокация</label>
+								<label className="flex items-center gap-2 text-[10px] font-black uppercase text-slate-400"><MapPin size={12} /> Место </label>
 								<CreatableSelect<SelectOption, true>
 									instanceId="place-select"
 									isMulti
@@ -358,7 +358,7 @@ export default function AdminPage() {
 								/>
 							</div>
 							<div className="space-y-2">
-								<label className="flex items-center gap-2 text-[10px] font-black uppercase text-slate-400"><Users size={12} /> О ком статья (Субъекты)</label>
+								<label className="flex items-center gap-2 text-[10px] font-black uppercase text-slate-400"><Users size={12} /> Гений</label>
 								<CreatableSelect<SelectOption, true>
 									instanceId="subject-select"
 									isMulti
