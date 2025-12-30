@@ -120,7 +120,7 @@ export default function CommentSection({ articleId, initialComments }: CommentSe
 							<div className="flex items-center gap-2 mb-1">
 								<span className="font-bold text-slate-900 text-sm">{comment.authorName}</span>
 								<span className="text-[10px] text-slate-400 uppercase font-bold tracking-widest">
-									{new Date(comment.createdAt).toLocaleDateString()}
+									{new Date(comment.createdAt).toLocaleDateString('ru-RU')}
 								</span>
 							</div>
 							<div className="bg-slate-50 border border-slate-100 p-4 rounded-2xl rounded-tl-none inline-block">

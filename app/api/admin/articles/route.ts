@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { unlink } from 'fs/promises';
 import path from 'path';
 import * as cheerio from 'cheerio';
+import { revalidateTag } from 'next/cache';
 
 interface ArticleInput {
 	id?: number;
@@ -105,6 +106,7 @@ export async function POST(req: Request) {
 			},
 			include: { section: true, author: true, tags: true, places: true, subjects: true }
 		});
+		revalidateTag('articles', 'max');
 		return NextResponse.json(article);
 	} catch (error) {
 		console.error('POST Error:', error);
@@ -168,6 +170,8 @@ export async function PUT(req: Request) {
 			},
 			include: { section: true, author: true, tags: true, places: true, subjects: true }
 		});
+		revalidateTag(`article-${id}`, 'max');
+		revalidateTag('articles', 'max');
 		return NextResponse.json(updated);
 	} catch (error) {
 		console.error('PUT Error:', error);
@@ -205,6 +209,8 @@ export async function DELETE(req: Request) {
 			});
 		}
 
+		revalidateTag(`article-${id}`, 'max');
+		revalidateTag('articles', 'max');
 		return NextResponse.json({ success: true });
 	} catch (error) {
 		console.error("DELETE_ERROR:", error);
