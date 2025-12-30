@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  allowedDevOrigins: ["office.baes.by"],
   experimental: {
     serverActions: {
       allowedOrigins: ["office.baes.by"],
