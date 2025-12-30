@@ -28,14 +28,14 @@ export default function Header() {
 						<Image
 							src="/gmm-genii.webp"
 							alt="Decorative"
-							width={500}
-							height={170}
-							className="object-contain h-auto w-[200px] sm:w-[400px]"
+							width={692}
+							height={98}
+							className="object-contain h-auto w-[200px] sm:w-[692px]"
 							priority
 						/>
 					</div>
 					<h1 className="font-semibold text-[#ffe5f8] leading-tight text-center lg:text-left 
-                         text-[14px] sm:text-[22px] md:text-[26px] xl:text-[32px]">
+                         text-[16px] sm:text-[24px] md:text-[36px] xl:text-[36px]">
 						СЭНСАВЫЯ ПАДАРОЖЖЫ ПА БЕЛАРУСІ
 					</h1>
 				</div>

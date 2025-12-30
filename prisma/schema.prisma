@@ -13,8 +13,8 @@ model Article {
   imageUrl    String?
   contentHtml String
   views       Int       @default(0)
-  likes       Int       @default(0) // Счетчик лайков
-  updatedAt   DateTime  @updatedAt @default(now())
+  likes       Int       @default(0)
+  createdAt   DateTime  @default(now())
   
   authorId    Int?
   author      Author?   @relation(fields: [authorId], references: [id])

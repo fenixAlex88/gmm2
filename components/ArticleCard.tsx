@@ -14,8 +14,8 @@ export default function ArticleCard({ article }: ArticleCardProps) {
 		? article.section
 		: article.section?.name;
 
-	const formattedDate = article.updatedAt
-		? new Date(article.updatedAt).toLocaleDateString('ru-RU', {
+	const formattedDate = article.createdAt
+		? new Date(article.createdAt).toLocaleDateString('ru-RU', {
 			day: '2-digit',
 			month: '2-digit',
 			year: '2-digit',
@@ -48,13 +48,13 @@ export default function ArticleCard({ article }: ArticleCardProps) {
 				</div>
 
 				{/* Контент */}
-				<div className="flex flex-col flex-grow p-6">
-					<h2 className="text-lg font-bold text-slate-900 leading-snug mb-4 line-clamp-2 group-hover:text-amber-600 transition-colors">
+				<div className="flex flex-col flex-grow px-6 py-2">
+					<h2 className="text-lg font-bold text-slate-900 leading-snug line-clamp-2 group-hover:text-amber-600 transition-colors">
 						{article.title}
 					</h2>
 
 					{/* Футер карточки */}
-					<div className="mt-auto pt-4 flex items-center justify-between border-t border-slate-50 text-slate-400">
+					<div className="mt-auto pt-1 flex items-center justify-between border-t border-slate-50 text-slate-400">
 
 						{/* Дата */}
 						<div className="flex items-center gap-2">

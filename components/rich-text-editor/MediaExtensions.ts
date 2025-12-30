@@ -60,12 +60,15 @@ export const PdfExtension = Node.create({
 	parseHTML() {
 		return [
 			{
-				// TipTap будет искать этот селектор в тексте из базы
 				tag: 'div[data-type="pdf"]',
 			},
 			{
-				// Добавляем этот селектор, чтобы распознать старые записи с классом media-wrapper
 				tag: 'div.media-wrapper',
+				// ПРОВЕРКА: этот div считается PDF только если внутри есть iframe
+				getAttrs: (node) => {
+					if (typeof node === 'string') return false;
+					return (node as HTMLElement).querySelector('iframe') ? null : false;
+				}
 			}
 		];
 	},

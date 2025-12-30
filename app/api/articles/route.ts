@@ -40,8 +40,8 @@ export async function GET(req: Request) {
 		};
 
 		// Формируем объект сортировки
-		let orderBy: Prisma.ArticleOrderByWithRelationInput = { updatedAt: 'desc' };
-		if (sort === 'oldest') orderBy = { updatedAt: 'asc' };
+		let orderBy: Prisma.ArticleOrderByWithRelationInput = { createdAt: 'desc' };
+		if (sort === 'oldest') orderBy = { createdAt: 'asc' };
 		if (sort === 'views') orderBy = { views: 'desc' };
 		if (sort === 'likes') orderBy = { likes: 'desc' };
 
@@ -52,7 +52,7 @@ export async function GET(req: Request) {
 				id: true,
 				title: true,
 				imageUrl: true,
-				updatedAt: true,
+				createdAt: true,
 				views: true,
 				likes: true,
 				section: { select: { id: true, name: true } },

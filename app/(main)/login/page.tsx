@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState } from "react"; // Используйте этот импорт в новых версиях
+import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import { Lock } from "lucide-react";
 import { login } from '@/app/actions/auth';
@@ -19,8 +19,6 @@ function SubmitButton() {
 }
 
 export default function LoginPage() {
-	// Теперь типы будут совпадать:
-	// (state, payload) => Promise
 	const [state, action] = useActionState(login, null);
 
 	return (

@@ -974,7 +974,7 @@ export const ArticleScalarFieldEnum = {
   contentHtml: 'contentHtml',
   views: 'views',
   likes: 'likes',
-  updatedAt: 'updatedAt',
+  createdAt: 'createdAt',
   authorId: 'authorId',
   sectionId: 'sectionId'
 } as const

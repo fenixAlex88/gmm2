@@ -1,3 +1,4 @@
+// interfaces\IArticle.ts
 // --- Базовые подобъекты ---
 interface Section {
 	id: number;
@@ -29,7 +30,7 @@ export interface IArticle {
 	id: number;
 	title: string;
 	views: number;
-	likes: number; 
+	likes: number;
 	contentHtml: string;
 	imageUrl?: string | null;
 
@@ -40,5 +41,5 @@ export interface IArticle {
 	places?: Place[];
 	subjects?: Subject[];
 
-	updatedAt?: string;
+	createdAt: string | Date;
 }

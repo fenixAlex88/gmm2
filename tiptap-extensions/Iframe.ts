@@ -11,8 +11,8 @@ const Iframe = Node.create({
 			src: { default: null },
 			frameborder: { default: 0 },
 			allowfullscreen: { default: true },
-			height: { default: 400 }, // Высота по умолчанию
-			class: { default: 'w-full aspect-video' } // Tailwind классы для адаптивности
+			height: { default: 400 },
+			class: { default: 'w-full aspect-video' } 
 		};
 	},
 

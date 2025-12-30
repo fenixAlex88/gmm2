@@ -40,7 +40,9 @@ export default function ArticleContent({ html }: ArticleContentProps) {
 			if (node.name === 'div' && node.attribs['data-type'] === 'carousel') {
 				try {
 					const images = JSON.parse(node.attribs['data-images'] || '[]');
-					const interval = node.attribs['interval'] ? parseInt(node.attribs['interval']) : 3000;
+					const interval = node.attribs['data-interval']
+						? parseInt(node.attribs['data-interval'])
+						: (node.attribs['interval'] ? parseInt(node.attribs['interval']) : 3000);
 					return <CarouselDisplay images={images} interval={interval} />;
 				} catch { return null; }
 			}
