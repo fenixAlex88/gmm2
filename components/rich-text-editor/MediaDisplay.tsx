@@ -1,5 +1,15 @@
 // MediaDisplay.tsx
-import { Music } from 'lucide-react';
+import { Download, FileText, Music } from 'lucide-react';
+import dynamic from 'next/dynamic';
+
+const SafePdfView = dynamic(() => import('./PdfViewInternal'), {
+	ssr: false,
+	loading: () => (
+		<div className="h-96 w-full bg-slate-50 animate-pulse rounded-[2rem] flex items-center justify-center border border-slate-100">
+			<FileText className="text-slate-200" size={48} />
+		</div>
+	)
+});
 
 export const VideoDisplay = ({ src }: { src: string }) => (
 	<div className="my-12 overflow-hidden rounded-xl shadow-2xl bg-black aspect-video ring-1 ring-slate-200">
@@ -17,15 +27,36 @@ export const AudioDisplay = ({ src }: { src: string }) => (
 );
 
 export const PdfDisplay = ({ src }: { src: string }) => {
-	const pdfUrl = `${src.split('#')[0]}#toolbar=0&navpanes=0&view=FitH`;
-
 	return (
-		<div className="my-12 w-full rounded-2xl border border-slate-200 shadow-xl overflow-hidden bg-white">
-			<iframe
-				src={pdfUrl}
-				className="w-full h-[700px] block border-none"
-				title="PDF Preview"
-			/>
+		<div className="my-16 w-full group">
+			{/* Шапка ридера */}
+			<div className="mb-4 flex items-center justify-between px-6">
+				<div className="flex items-center gap-3">
+					<div className="bg-red-500 p-2 rounded-xl text-white shadow-lg shadow-red-200">
+						<FileText size={18} />
+					</div>
+					<div className="flex flex-col">
+						<span className="text-sm font-bold text-slate-800 leading-none mb-1">Документ PDF</span>
+						<span className="text-[10px] text-slate-400 font-medium uppercase tracking-tighter">Нажмите, чтобы выделить текст</span>
+					</div>
+				</div>
+
+				<a
+					href={src}
+					download
+					target="_blank"
+					rel="noopener noreferrer"
+					className="flex items-center gap-2 bg-slate-100 hover:bg-amber-500 hover:text-white px-4 py-2 rounded-xl text-xs font-bold transition-all duration-300 text-slate-600"
+				>
+					<Download size={14} />
+					Сохранить
+				</a>
+			</div>
+
+			{/* Контейнер рендеринга */}
+			<div className="bg-slate-50/50 rounded-[2.5rem] border border-slate-200/60 p-4 md:p-8 backdrop-blur-sm shadow-inner">
+				<SafePdfView src={src} />
+			</div>
 		</div>
 	);
 };

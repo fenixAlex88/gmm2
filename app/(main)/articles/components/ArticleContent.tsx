@@ -4,7 +4,8 @@ import React from 'react';
 import parse, { HTMLReactParserOptions, Element } from 'html-react-parser';
 import dynamic from 'next/dynamic';
 import CarouselDisplay from '@/components/CarouselDisplay';
-import { AudioDisplay, PdfDisplay, VideoDisplay } from '@/components/rich-text-editor/MediaDisplay';
+import { AudioDisplay, VideoDisplay } from '@/components/rich-text-editor/MediaDisplay';
+import { PdfDisplay } from '@/components/rich-text-editor/PdfDisplay';
 
 // Динамически импортируем карту ТОЛЬКО на клиенте
 const MapComponentInner = dynamic(() => import('@/components/rich-text-editor/MapComponentInner'), {
