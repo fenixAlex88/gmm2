@@ -10,9 +10,6 @@ import NavigationBar from '@/components/NavigationBar';
 export const metadata: Metadata = {
   title: "Геній майго месца / Гений моего места / ГММ",
   description: "Сэнсавы турызм. Падарожжы з геніямі / Смысловой турызм. Экскурсии с гениями",
-  icons: {
-    icon: "/favicon.ico",
-  },
 };
 
 export default function RootLayout({
