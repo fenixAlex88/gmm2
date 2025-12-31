@@ -9,6 +9,7 @@ datasource db {
 
 model Article {
   id          Int      @id @default(autoincrement())
+  priority    Int?
   title       String
   description String?  @db.Text
   imageUrl    String?

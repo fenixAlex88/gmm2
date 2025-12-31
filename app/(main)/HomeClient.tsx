@@ -31,7 +31,7 @@ export default function HomeClient({ initialArticles, sections, options }: HomeC
 	const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
 	const [search, setSearch] = useState('');
-	const [sortBy, setSortBy] = useState<SortOption>(SortOption.Newest);
+	const [sortBy, setSortBy] = useState<SortOption>(SortOption.Default);
 	const [filters, setFilters] = useState<FilterState>({
 		sectionId: null, authors: [], places: [], subjects: [], tags: [],
 	});

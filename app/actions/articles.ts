@@ -7,8 +7,8 @@ import { Prisma } from '@/generated/prisma/client';
 import { SortOption } from '@/interfaces/SortOptions';
 
 /**
- * Серверный экшен для получения списка статей с учетом фильтров, поиска и сортировки.
- * Использует гибридный подход для обхода ограничений локали "C" в PostgreSQL.
+ * Серверны экшэн для атрымання спіса артыкулаў.
+ * Падтрымлівае новую сістэму сартавання "Default" для ТОП-16.
  */
 export async function getArticlesAction(params: {
 	skip: number;
@@ -18,7 +18,7 @@ export async function getArticlesAction(params: {
 }): Promise<IArticle[]> {
 	const { skip, search, sortBy, filters } = params;
 
-	// 1. Формируем базовые условия фильтрации Prisma
+	// 1. Базавыя ўмовы фільтрацыі
 	const whereConditions: Prisma.ArticleWhereInput[] = [
 		filters?.sectionId ? { sectionId: Number(filters.sectionId) } : {},
 		filters?.authors?.length ? { author: { name: { in: filters.authors.map(o => o.value) } } } : {},
@@ -27,16 +27,14 @@ export async function getArticlesAction(params: {
 		filters?.subjects?.length ? { subjects: { some: { name: { in: filters.subjects.map(o => o.value) } } } } : {},
 	];
 
-	// Вспомогательная функция для нормализации текста (регистр + i/і/и)
 	const normalizeText = (t: string | null | undefined) =>
 		(t || "").toLowerCase().replace(/[іиi]/g, "i").trim();
 
-	// 2. Глобальный поиск (Title, Author, Places, Subjects)
-	// Выполняется в памяти Node.js для 100% регистронезависимости при любой локали БД
-	if (search && search.trim() !== "") {
+	// 2. Глобальны пошук у памяці
+	const isSearching = search && search.trim() !== "";
+	if (isSearching) {
 		const normalizedQuery = normalizeText(search);
 
-		// Получаем минимальный набор данных для поиска в памяти
 		const allDataForSearch = await prisma.article.findMany({
 			select: {
 				id: true,
@@ -53,37 +51,45 @@ export async function getArticlesAction(params: {
 				const inAuthor = normalizeText(article.author?.name).includes(normalizedQuery);
 				const inPlaces = article.places.some(p => normalizeText(p.name).includes(normalizedQuery));
 				const inSubjects = article.subjects.some(s => normalizeText(s.name).includes(normalizedQuery));
-
 				return inTitle || inAuthor || inPlaces || inSubjects;
 			})
 			.map(article => article.id);
 
-		// Если поиск ничего не дал, возвращаем пустой массив сразу
 		if (matchedIds.length === 0) return [];
-
 		whereConditions.push({ id: { in: matchedIds } });
 	}
 
-	// 3. Определяем логику сортировки на основе Enum
-	let orderBy: Prisma.ArticleOrderByWithRelationInput;
+	// 3. Вызначэнне сартавання
+	let orderBy: Prisma.ArticleOrderByWithRelationInput | Prisma.ArticleOrderByWithRelationInput[];
 
-	switch (sortBy) {
-		case SortOption.Oldest:
-			orderBy = { createdAt: 'asc' };
-			break;
-		case SortOption.Views:
-			orderBy = { views: 'desc' };
-			break;
-		case SortOption.Likes:
-			orderBy = { likes: 'desc' };
-			break;
-		case SortOption.Newest:
-		default:
-			orderBy = { createdAt: 'desc' };
-			break;
+	// Калі выбрана "Default" (Рэкамендаванае) або параметр адсутнічае
+	if (sortBy === SortOption.Default || !sortBy) {
+		orderBy = [
+			{ priority: { sort: 'asc', nulls: 'last' } } as Prisma.ArticleOrderByWithRelationInput,
+			{ createdAt: 'desc' } as Prisma.ArticleOrderByWithRelationInput
+		];
+	} else {
+		// Усе астатнія варыянты ІГНАРУЮЦЬ прыярытэт і выкарыстоўваюць чыстую логіку
+		switch (sortBy) {
+			case SortOption.Newest:
+				orderBy = { createdAt: 'desc' };
+				break;
+			case SortOption.Oldest:
+				orderBy = { createdAt: 'asc' };
+				break;
+			case SortOption.Views:
+				orderBy = { views: 'desc' };
+				break;
+			case SortOption.Likes:
+				orderBy = { likes: 'desc' };
+				break;
+			default:
+				orderBy = { createdAt: 'desc' };
+				break;
+		}
 	}
 
-	// 4. Финальный запрос к БД
+	// 4. Фінальны запыт
 	const articles = await prisma.article.findMany({
 		where: { AND: whereConditions },
 		take: 16,
@@ -98,17 +104,18 @@ export async function getArticlesAction(params: {
 		}
 	});
 
-	// Сериализуем Date в string для безопасной передачи Client-компонентам
 	return JSON.parse(JSON.stringify(articles));
 }
 
+/**
+ * Інкрэмент праглядаў
+ */
 export async function incrementViewsAction(id: number) {
 	try {
 		await prisma.article.update({
 			where: { id },
 			data: { views: { increment: 1 } }
 		});
-
 	} catch (e) {
 		console.error("Failed to increment views:", e);
 	}

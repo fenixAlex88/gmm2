@@ -7,6 +7,7 @@ import { revalidateTag } from 'next/cache';
 
 interface ArticleInput {
 	id?: number;
+	priority?: number | null;
 	title: string;
 	description?: string | null;
 	contentHtml: string;
@@ -54,6 +55,54 @@ async function deleteFile(fileUrl: string | null | undefined) {
 	}
 }
 
+async function handlePriority(newPriority: number | null | undefined, currentArticleId?: number) {
+	if (!newPriority) return;
+
+	await prisma.$transaction(async (tx) => {
+		// 1. Робім папярэдні зрух, каб вызваліць месца
+		await tx.article.updateMany({
+			where: {
+				priority: { gte: newPriority },
+				NOT: currentArticleId ? { id: currentArticleId } : undefined
+			},
+			data: { priority: { increment: 1 } }
+		});
+
+		// 2. Атрымліваем усе артыкулы з прыярытэтам (акрамя бягучага, яго мы запішам пазней у POST/PUT)
+		// Сартуем іх па бягучым прыярытэце
+		const activeArticles = await tx.article.findMany({
+			where: {
+				priority: { not: null },
+				NOT: currentArticleId ? { id: currentArticleId } : undefined
+			},
+			orderBy: { priority: 'asc' },
+			select: { id: true, priority: true }
+		});
+
+		// 3. Перапрызначаем нумары так, каб не было дзірак
+		// Калі мы ставім новы артыкул на 1, то наступны павінен быць 2, потым 3 і г.д.
+		let nextPos = 1;
+		for (const art of activeArticles) {
+			// Калі гэтая пазіцыя занятая нашым новым прыярытэтам — прапускаем яе
+			if (nextPos === newPriority) {
+				nextPos++;
+			}
+
+			// Калі прыярытэт артыкула не супадае з патрэбнай чаргой — выпраўляем
+			if (art.priority !== nextPos) {
+				// Калі мы выйшлі за межы 16, анулюем
+				const finalPriority = nextPos > 16 ? null : nextPos;
+
+				await tx.article.update({
+					where: { id: art.id },
+					data: { priority: finalPriority }
+				});
+			}
+			nextPos++;
+		}
+	});
+}
+
 export async function GET() {
 	try {
 		const articles = await prisma.article.findMany({
@@ -70,12 +119,17 @@ export async function POST(req: Request) {
 	try {
 		const data: ArticleInput = await req.json();
 		const {
-			title, description, contentHtml, sectionId, imageUrl,
+			priority ,title, description, contentHtml, sectionId, imageUrl,
 			authorName, tagNames = [], placeNames = [], subjectNames = []
 		} = data;
 
+		if (priority) {
+			await handlePriority(priority);
+		}
+
 		const article = await prisma.article.create({
 			data: {
+				priority,
 				title,
 				description,
 				contentHtml,
@@ -120,7 +174,7 @@ export async function PUT(req: Request) {
 	try {
 		const data: ArticleInput = await req.json();
 		const {
-			id, title, description, contentHtml, sectionId, imageUrl,
+			id, priority, title, description, contentHtml, sectionId, imageUrl,
 			authorName, tagNames = [], placeNames = [], subjectNames = []
 		} = data;
 
@@ -135,9 +189,14 @@ export async function PUT(req: Request) {
 		const deletedFiles = oldFiles.filter(f => f && !newFiles.includes(f));
 		await Promise.allSettled(deletedFiles.map(deleteFile));
 
+		if (priority && priority !== oldArticle.priority) {
+			await handlePriority(priority, id);
+		}
+
 		const updated = await prisma.article.update({
 			where: { id },
 			data: {
+				priority,
 				title,
 				description,
 				contentHtml,

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { Save, RotateCcw, ImageIcon, MapPin, Users, User, Tag, AlignLeft } from 'lucide-react';
+import { Save, RotateCcw, ImageIcon, MapPin, Users, User, Tag, AlignLeft, Star } from 'lucide-react';
 import CreatableSelect from 'react-select/creatable';
 import RichTextEditor from '@/components/rich-text-editor';
 import CommentManager from './CommentManager';
@@ -11,9 +11,10 @@ export default function ArticleForm({ article, sections, metadata, onSuccess, on
 	const [form, setForm] = useState<any>({
 		id: null,
 		title: '',
-		description: '', // ДАДАДЗЕНА
+		description: '',
 		contentHtml: '',
 		sectionId: 0,
+		priority: null, // ДАДАДЗЕНА
 		authorName: '',
 		tagNames: [],
 		placeNames: [],
@@ -30,9 +31,10 @@ export default function ArticleForm({ article, sections, metadata, onSuccess, on
 			setForm({
 				id: article.id,
 				title: article.title,
-				description: article.description || '', // ДАДАДЗЕНА
+				description: article.description || '',
 				contentHtml: article.contentHtml,
 				sectionId: article.section?.id || 0,
+				priority: article.priority ?? null, // ДАДАДЗЕНА (?? null апрацоўвае 0 як значэнне, калі трэба)
 				authorName: article.author?.name || '',
 				tagNames: article.tags?.map((t: any) => t.name) || [],
 				placeNames: article.places?.map((p: any) => p.name) || [],
@@ -42,7 +44,8 @@ export default function ArticleForm({ article, sections, metadata, onSuccess, on
 			});
 		} else {
 			setForm({
-				id: null, title: '', description: '', contentHtml: '', sectionId: 0, authorName: '',
+				id: null, title: '', description: '', contentHtml: '', sectionId: 0,
+				priority: null, authorName: '',
 				tagNames: [], placeNames: [], subjectNames: [], imageFile: null, currentImageUrl: null
 			});
 		}
@@ -103,9 +106,9 @@ export default function ArticleForm({ article, sections, metadata, onSuccess, on
 			<div className="flex-grow overflow-y-auto px-8 py-10">
 				<div className="max-w-6xl mx-auto space-y-10">
 
-					{/* Загаловак і Раздзел */}
-					<div className="grid grid-cols-3 gap-8">
-						<div className="col-span-2 space-y-2">
+					{/* Загаловак, Раздзел і Прыярытэт */}
+					<div className="grid grid-cols-12 gap-8">
+						<div className="col-span-7 space-y-2">
 							<label className="text-[10px] font-black uppercase text-slate-400">Загаловак</label>
 							<input
 								type="text" value={form.title}
@@ -114,7 +117,7 @@ export default function ArticleForm({ article, sections, metadata, onSuccess, on
 								className="w-full text-4xl font-black focus:outline-none placeholder:text-slate-200"
 							/>
 						</div>
-						<div className="space-y-2">
+						<div className="col-span-3 space-y-2">
 							<label className="text-[10px] font-black uppercase text-slate-400">Сэнс</label>
 							<select
 								value={form.sectionId}
@@ -125,9 +128,26 @@ export default function ArticleForm({ article, sections, metadata, onSuccess, on
 								{sections.map((s: any) => <option key={s.id} value={s.id}>{s.name}</option>)}
 							</select>
 						</div>
+						<div className="col-span-2 space-y-2">
+							<label className="text-[10px] font-black uppercase text-slate-400 flex items-center gap-1">
+								<Star size={10} className="text-amber-500 fill-amber-500" /> ТОП (1-16)
+							</label>
+							<input
+								type="number"
+								min="1"
+								max="16"
+								value={form.priority || ''}
+								onChange={e => {
+									const val = e.target.value ? parseInt(e.target.value) : null;
+									setForm({ ...form, priority: val });
+								}}
+								placeholder="—"
+								className="w-full h-12 bg-amber-50 rounded-xl px-4 font-black text-amber-700 outline-none border border-amber-100 focus:ring-2 ring-amber-200"
+							/>
+						</div>
 					</div>
 
-					{/* КАРOTКАЕ АПІСАННЕ (ДАДАДЗЕНА) */}
+					{/* КАРOTКАЕ АПІСАННЕ */}
 					<div className="space-y-2">
 						<label className="flex items-center gap-2 text-[10px] font-black uppercase text-slate-400">
 							<AlignLeft size={12} /> Кароткае апісанне

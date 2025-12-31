@@ -16,6 +16,7 @@ export default function SortSelect({ value, onChange }: Props) {
 					onChange={e => onChange(e.target.value as SortOption)}
 					className="w-full lg:w-[240px] pl-3 pr-10 py-2 bg-white border border-slate-200 rounded-xl text-sm font-medium outline-none cursor-pointer h-[38px] appearance-none hover:border-slate-300 transition-colors shadow-sm"
 				>
+					<option value={SortOption.Default}>Рэкамендаванае</option>
 					<option value={SortOption.Newest}>Спачатку новыя</option>
 					<option value={SortOption.Oldest}>Спачатку старыя</option>
 					<option value={SortOption.Views}>Па папулярнасці</option>

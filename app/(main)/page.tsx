@@ -6,7 +6,10 @@ export default async function HomePage() {
   const [initialArticlesData, sections, authors, places, subjects, tags] = await Promise.all([
     prisma.article.findMany({
       take: 16,
-      orderBy: { createdAt: 'desc' },
+      orderBy: [
+        { priority: { sort: 'asc', nulls: 'last' } },
+        { createdAt: 'desc' }
+      ],
       include: {
         section: true,
         author: true,

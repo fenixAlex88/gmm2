@@ -28,6 +28,7 @@ interface Subject {
 // --- Интерфейс статьи ---
 export interface IArticle {
 	id: number;
+	priority?: number;
 	title: string;
 	description?: string | null;
 	views: number;
