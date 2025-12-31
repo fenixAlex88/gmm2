@@ -1,3 +1,5 @@
+//  components\rich-text-editor\index.tsx
+
 'use client'
 
 import { useEditor, EditorContent } from '@tiptap/react'
@@ -11,7 +13,7 @@ import { Carousel } from './Carousel';
 import { VideoExtension, AudioExtension, PdfExtension } from './MediaExtensions';
 import { MapExtension } from './MapExtension';
 import { ColumnExtension, ColumnsExtension } from './ColumnsExtension';
-import { FontSize, TextStyle } from '@tiptap/extension-text-style';
+import { Color, FontSize, TextStyle } from '@tiptap/extension-text-style';
 import Link from '@tiptap/extension-link';
 
 interface RichTextEditorProps {
@@ -43,6 +45,7 @@ export default function RichTextEditor({ content, onChange }: RichTextEditorProp
 			}),
 			TextStyle,
 			FontSize,
+			Color,
 			TextAlign.configure({
 				types: ['heading', 'paragraph'],
 			}),

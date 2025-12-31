@@ -1,4 +1,6 @@
 // components/rich-text-editor/menu-bar.tsx
+
+
 import {
 	AlignCenter, AlignLeft, AlignRight, Bold, Heading1, Heading2, Heading3,
 	Highlighter, Images, Italic, List, ListOrdered, Strikethrough,
@@ -8,15 +10,17 @@ import {
 	ChevronUp,
 	ChevronDown,
 	LinkIcon,
-	Unlink
+	Unlink,
+	Palette
 } from 'lucide-react';
-import React from 'react'
 import { Editor } from '@tiptap/react';
 import { Toggle } from '../ui/toggle';
 import { uploadFiles } from '@/helpers/uploadFiles';
+import { EDITOR_COLORS } from '@/interfaces/editor-colors';
 
 export default function MenuBar({ editor }: { editor: Editor }) {
 	if (!editor) return null;
+	const colorOptions = Object.values(EDITOR_COLORS);
 
 	const changeFontSize = (delta: number) => {
 		const currentSize = editor.getAttributes('textStyle').fontSize;
@@ -181,6 +185,36 @@ export default function MenuBar({ editor }: { editor: Editor }) {
 			icon: <Strikethrough className="size-4" />,
 			onClick: () => editor.chain().focus().toggleStrike().run(),
 			preesed: editor.isActive("strike"),
+		},
+		{
+			icon: (
+				<div className="relative flex flex-col items-center justify-center">
+					<Palette className="size-4" />
+					{/* Маленькая каляровая рыска пад іконкай */}
+					<div
+						className="absolute -bottom-1 w-3.5 h-0.5 rounded-full"
+						style={{ backgroundColor: editor.getAttributes('textStyle').color || EDITOR_COLORS.DEFAULT.value }}
+					/>
+					<select
+						className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
+						onChange={(e) => editor.chain().focus().setColor(e.target.value).run()}
+						value={editor.getAttributes('textStyle').color || EDITOR_COLORS.DEFAULT.value}
+					>
+						{colorOptions.map((color) => (
+							<option
+								key={color.value}
+								value={color.value}
+								style={{ color: color.value }}
+							>
+								{color.name}
+							</option>
+						))}
+					</select>
+				</div>
+			),
+			onClick: () => { },
+			preesed: false,
+			label: "Колер тэксту"
 		},
 		{
 			icon: <ChevronUp className="size-4" />,
