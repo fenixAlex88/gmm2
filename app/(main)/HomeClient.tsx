@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { IArticle } from '@/interfaces/IArticle';
 import ArticleCard from '@/components/ArticleCard';
 import FilterSection, { FilterState, SelectOption } from './components/FilterSection';
@@ -25,6 +25,8 @@ export default function HomeClient({ initialArticles, sections, options }: HomeC
 	const [isLoading, setIsLoading] = useState(false);
 	const [hasMore, setHasMore] = useState(initialArticles.length === 16);
 
+	const articlesCountRef = useRef(articles.length);
+
 	const [isSearchVisible, setIsSearchVisible] = useState(false);
 	const [isFiltersOpen, setIsFiltersOpen] = useState(false);
 
@@ -34,9 +36,14 @@ export default function HomeClient({ initialArticles, sections, options }: HomeC
 		sectionId: null, authors: [], places: [], subjects: [], tags: [],
 	});
 
+	useEffect(() => {
+		articlesCountRef.current = articles.length;
+	}, [articles]);
+
 	const loadArticles = useCallback(async (isLoadMore = false) => {
+		if (isLoading) return;
 		setIsLoading(true);
-		const skip = isLoadMore ? articles.length : 0;
+		const skip = isLoadMore ? articlesCountRef.current : 0;
 
 		const newArticles = await getArticlesAction({
 			skip,
@@ -53,14 +60,14 @@ export default function HomeClient({ initialArticles, sections, options }: HomeC
 
 		setHasMore(newArticles.length === 16);
 		setIsLoading(false);
-	}, [search, sortBy, filters, articles.length]);
+	}, [search, sortBy, filters]);
 
 	useEffect(() => {
 		const t = setTimeout(() => {
 			loadArticles(false);
 		}, 500);
 		return () => clearTimeout(t);
-	}, [loadArticles]);
+	}, [search, sortBy, filters, loadArticles]);
 
 	const updateFilter = (key: keyof FilterState, value: FilterState[keyof FilterState]) => {
 		setFilters(prev => ({ ...prev, [key]: value }));
