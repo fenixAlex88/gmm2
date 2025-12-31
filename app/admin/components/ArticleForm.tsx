@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { Save, RotateCcw, ImageIcon, MapPin, Users, User, Tag } from 'lucide-react';
+import { Save, RotateCcw, ImageIcon, MapPin, Users, User, Tag, AlignLeft } from 'lucide-react';
 import CreatableSelect from 'react-select/creatable';
 import RichTextEditor from '@/components/rich-text-editor';
 import CommentManager from './CommentManager';
@@ -11,12 +11,13 @@ export default function ArticleForm({ article, sections, metadata, onSuccess, on
 	const [form, setForm] = useState<any>({
 		id: null,
 		title: '',
+		description: '', // ДАДАДЗЕНА
 		contentHtml: '',
 		sectionId: 0,
 		authorName: '',
 		tagNames: [],
-		placeNames: [], // Вярнулі
-		subjectNames: [], // Вярнулі
+		placeNames: [],
+		subjectNames: [],
 		imageFile: null,
 		currentImageUrl: null
 	});
@@ -29,18 +30,19 @@ export default function ArticleForm({ article, sections, metadata, onSuccess, on
 			setForm({
 				id: article.id,
 				title: article.title,
+				description: article.description || '', // ДАДАДЗЕНА
 				contentHtml: article.contentHtml,
 				sectionId: article.section?.id || 0,
 				authorName: article.author?.name || '',
 				tagNames: article.tags?.map((t: any) => t.name) || [],
-				placeNames: article.places?.map((p: any) => p.name) || [], // Вярнулі
-				subjectNames: article.subjects?.map((s: any) => s.name) || [], // Вярнулі
+				placeNames: article.places?.map((p: any) => p.name) || [],
+				subjectNames: article.subjects?.map((s: any) => s.name) || [],
 				currentImageUrl: article.imageUrl,
 				imageFile: null
 			});
 		} else {
 			setForm({
-				id: null, title: '', contentHtml: '', sectionId: 0, authorName: '',
+				id: null, title: '', description: '', contentHtml: '', sectionId: 0, authorName: '',
 				tagNames: [], placeNames: [], subjectNames: [], imageFile: null, currentImageUrl: null
 			});
 		}
@@ -125,6 +127,19 @@ export default function ArticleForm({ article, sections, metadata, onSuccess, on
 						</div>
 					</div>
 
+					{/* КАРOTКАЕ АПІСАННЕ (ДАДАДЗЕНА) */}
+					<div className="space-y-2">
+						<label className="flex items-center gap-2 text-[10px] font-black uppercase text-slate-400">
+							<AlignLeft size={12} /> Кароткае апісанне
+						</label>
+						<textarea
+							value={form.description}
+							onChange={e => setForm({ ...form, description: e.target.value })}
+							placeholder="Кароткi тэкст аписання падарожжа..."
+							className="w-full h-24 bg-slate-50 rounded-2xl p-4 font-medium text-slate-700 outline-none border-none resize-none focus:ring-2 ring-amber-100 transition-all"
+						/>
+					</div>
+
 					{/* Метаданыя: Аўтар і Тэгі */}
 					<div className="grid grid-cols-2 gap-8">
 						<div className="space-y-2">
@@ -149,7 +164,7 @@ export default function ArticleForm({ article, sections, metadata, onSuccess, on
 						</div>
 					</div>
 
-					{/* Метаданыя: Месцы і Геніі (Вярнулі гэты блок) */}
+					{/* Метаданыя: Месцы і Геніі */}
 					<div className="grid grid-cols-2 gap-8">
 						<div className="space-y-2">
 							<label className="flex items-center gap-2 text-[10px] font-black uppercase text-slate-400"><MapPin size={12} /> Месца</label>

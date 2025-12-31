@@ -8,6 +8,7 @@ interface ArticleHeroProps {
 		createdAt: string | Date;
 		section?: { name: string } | null;
 		author?: { name: string } | null;
+		description?: string | null;
 	};
 }
 
@@ -73,10 +74,19 @@ export default function ArticleHero({ article }: ArticleHeroProps) {
 						)}
 					</div>
 
+					{/* Загаловак */}
 					<h1 className="text-4xl md:text-7xl font-black text-white leading-[1.1] drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)] max-w-4xl">
 						{article.title}
 					</h1>
 
+					{/* АПІСАННЕ (ДАДАДЗЕНА) */}
+					{article.description && (
+						<p className="text-lg md:text-xl text-slate-200 font-medium leading-relaxed max-w-3xl drop-shadow-md mt-2 line-clamp-3">
+							{article.description}
+						</p>
+					)}
+
+					{/* Метаданыя */}
 					<div className="flex flex-wrap items-center gap-y-4 gap-x-6 mt-6 text-white text-sm font-bold">
 						{article.author && (
 							<div className="flex items-center gap-2 drop-shadow-md">

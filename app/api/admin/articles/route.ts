@@ -8,6 +8,7 @@ import { revalidateTag } from 'next/cache';
 interface ArticleInput {
 	id?: number;
 	title: string;
+	description?: string | null;
 	contentHtml: string;
 	sectionId: number;
 	imageUrl?: string | null;
@@ -69,13 +70,14 @@ export async function POST(req: Request) {
 	try {
 		const data: ArticleInput = await req.json();
 		const {
-			title, contentHtml, sectionId, imageUrl,
+			title, description, contentHtml, sectionId, imageUrl,
 			authorName, tagNames = [], placeNames = [], subjectNames = []
 		} = data;
 
 		const article = await prisma.article.create({
 			data: {
 				title,
+				description,
 				contentHtml,
 				imageUrl,
 				section: { connect: { id: Number(sectionId) } },
@@ -118,7 +120,7 @@ export async function PUT(req: Request) {
 	try {
 		const data: ArticleInput = await req.json();
 		const {
-			id, title, contentHtml, sectionId, imageUrl,
+			id, title, description, contentHtml, sectionId, imageUrl,
 			authorName, tagNames = [], placeNames = [], subjectNames = []
 		} = data;
 
@@ -137,6 +139,7 @@ export async function PUT(req: Request) {
 			where: { id },
 			data: {
 				title,
+				description,
 				contentHtml,
 				imageUrl,
 				section: { connect: { id: Number(sectionId) } },

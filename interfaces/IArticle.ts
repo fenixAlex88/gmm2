@@ -29,6 +29,7 @@ interface Subject {
 export interface IArticle {
 	id: number;
 	title: string;
+	description?: string | null;
 	views: number;
 	likes: number;
 	contentHtml: string;

@@ -34,8 +34,15 @@ export default function ArticleCard({ article }: ArticleCardProps) {
 						fill
 						sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
 						className="object-cover transition-transform duration-700 group-hover:scale-110"
-						unoptimized={!!article.imageUrl?.startsWith('/uploads/')}
 					/>
+
+					{article.description && (
+						<div className="absolute inset-0 bg-slate-900/70 backdrop-blur-[2px] p-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+							<p className="text-white text-lg font-medium leading-relaxed text-center line-clamp-4 transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+								{article.description}
+							</p>
+						</div>
+					)}
 
 					{/* Категория сверху */}
 					{sectionName && (
