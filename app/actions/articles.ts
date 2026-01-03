@@ -7,8 +7,8 @@ import { Prisma } from '@/generated/prisma/client';
 import { SortOption } from '@/interfaces/SortOptions';
 
 /**
- * Серверны экшэн для атрымання спіса артыкулаў.
- * Падтрымлівае новую сістэму сартавання "Default" для ТОП-16.
+ * Серверны экшэн для атрымання спіса артыкулаў з улікам пагінацыі,
+ * фільтраў і новай мадэлі лайкаў.
  */
 export async function getArticlesAction(params: {
 	skip: number;
@@ -18,7 +18,7 @@ export async function getArticlesAction(params: {
 }): Promise<IArticle[]> {
 	const { skip, search, sortBy, filters } = params;
 
-	// 1. Базавыя ўмовы фільтрацыі
+	// 1. Фарміруем умовы фільтрацыі (Prisma where)
 	const whereConditions: Prisma.ArticleWhereInput[] = [
 		filters?.sectionId ? { sectionId: Number(filters.sectionId) } : {},
 		filters?.authors?.length ? { author: { name: { in: filters.authors.map(o => o.value) } } } : {},
@@ -27,12 +27,12 @@ export async function getArticlesAction(params: {
 		filters?.subjects?.length ? { subjects: { some: { name: { in: filters.subjects.map(o => o.value) } } } } : {},
 	];
 
+	// Функцыя для нармалізацыі тэксту (пошук незалежна ад мовы)
 	const normalizeText = (t: string | null | undefined) =>
 		(t || "").toLowerCase().replace(/[іиi]/g, "i").trim();
 
-	// 2. Глобальны пошук у памяці
-	const isSearching = search && search.trim() !== "";
-	if (isSearching) {
+	// 2. Глобальны пошук (ваша існуючая логіка)
+	if (search && search.trim() !== "") {
 		const normalizedQuery = normalizeText(search);
 
 		const allDataForSearch = await prisma.article.findMany({
@@ -59,17 +59,15 @@ export async function getArticlesAction(params: {
 		whereConditions.push({ id: { in: matchedIds } });
 	}
 
-	// 3. Вызначэнне сартавання
+	// 3. Вызначаем логіку сартавання (ВЫПРАЎЛЕНА для likesRel)
 	let orderBy: Prisma.ArticleOrderByWithRelationInput | Prisma.ArticleOrderByWithRelationInput[];
 
-	// Калі выбрана "Default" (Рэкамендаванае) або параметр адсутнічае
 	if (sortBy === SortOption.Default || !sortBy) {
 		orderBy = [
-			{ priority: { sort: 'asc', nulls: 'last' } } as Prisma.ArticleOrderByWithRelationInput,
-			{ createdAt: 'desc' } as Prisma.ArticleOrderByWithRelationInput
+			{ priority: { sort: 'asc', nulls: 'last' } },
+			{ createdAt: 'desc' }
 		];
 	} else {
-		// Усе астатнія варыянты ІГНАРУЮЦЬ прыярытэт і выкарыстоўваюць чыстую логіку
 		switch (sortBy) {
 			case SortOption.Newest:
 				orderBy = { createdAt: 'desc' };
@@ -81,7 +79,12 @@ export async function getArticlesAction(params: {
 				orderBy = { views: 'desc' };
 				break;
 			case SortOption.Likes:
-				orderBy = { likes: 'desc' };
+				// Сартуем па колькасці запісаў у звязанай табліцы likes
+				orderBy = {
+					likesRel: {
+						_count: 'desc'
+					}
+				};
 				break;
 			default:
 				orderBy = { createdAt: 'desc' };
@@ -89,8 +92,8 @@ export async function getArticlesAction(params: {
 		}
 	}
 
-	// 4. Фінальны запыт
-	const articles = await prisma.article.findMany({
+	// 4. Запыт да базы дадзеных
+	const articlesData = await prisma.article.findMany({
 		where: { AND: whereConditions },
 		take: 16,
 		skip: skip,
@@ -100,15 +103,31 @@ export async function getArticlesAction(params: {
 			author: true,
 			tags: true,
 			places: true,
-			subjects: true
+			subjects: true,
+			likesRel: true // Неабходна для падліку likes на стадыі мапінгу
 		}
 	});
 
-	return JSON.parse(JSON.stringify(articles));
+	// 5. Трансфармацыя дадзеных (ВЫПРАЎЛЕНА: захоўваем усе сувязі)
+	return articlesData.map(art => {
+		// Захоўваем лічбу лайкаў
+		const likesCount = art.likesRel.length;
+
+		// Ствараем копію аб'екта без масіва likesRel, каб не перадаваць лішнія дадзеныя
+		const { likesRel, ...rest } = art;
+
+		// Ператвараем у JSON-сумяшчальны фармат (Dates -> Strings)
+		const plainData = JSON.parse(JSON.stringify(rest));
+
+		return {
+			...plainData,
+			likes: likesCount // Перадаем лічбу для інтэрфейсу IArticle
+		} as IArticle;
+	});
 }
 
 /**
- * Інкрэмент праглядаў
+ * Інкрэмент праглядаў артыкула
  */
 export async function incrementViewsAction(id: number) {
 	try {

@@ -85,8 +85,8 @@ export default function ArticleActions({ articleId, initialLikes, title }: Props
 					onClick={handleLike}
 					disabled={isLiked}
 					className={`flex items-center gap-3 px-6 py-2.5 rounded-2xl transition-all font-bold shadow-sm border ${isLiked
-							? 'bg-rose-500 border-rose-500 text-white'
-							: 'bg-white border-slate-200 text-slate-600 hover:border-rose-200 hover:bg-rose-50 hover:text-rose-500'
+						? 'bg-rose-500 border-rose-500 text-white'
+						: 'bg-white border-slate-200 text-slate-600 hover:border-rose-200 hover:bg-rose-50 hover:text-rose-500'
 						}`}
 				>
 					<Heart size={18} className={isLiked ? 'fill-current' : ''} />
@@ -109,8 +109,8 @@ export default function ArticleActions({ articleId, initialLikes, title }: Props
 						<button
 							onClick={() => setIsMenuOpen(!isMenuOpen)}
 							className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm transition-all border ${isMenuOpen
-									? 'bg-slate-900 border-slate-900 text-white'
-									: 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
+								? 'bg-slate-900 border-slate-900 text-white'
+								: 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
 								}`}
 						>
 							<Share2 size={18} />

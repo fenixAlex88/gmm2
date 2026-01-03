@@ -15,7 +15,7 @@ export default async function HomePage() {
         author: true,
         tags: true,
         places: true,
-        subjects: true
+        likesRel: true // Загружаем сувязі для падліку
       }
     }),
     prisma.section.findMany({ select: { id: true, name: true } }),
@@ -25,7 +25,11 @@ export default async function HomePage() {
     prisma.tag.findMany({ select: { name: true } }),
   ]);
 
-  const initialArticles = JSON.parse(JSON.stringify(initialArticlesData)) as IArticle[];
+  // Трансфармуем дадзеныя пад інтэрфейс IArticle
+  const initialArticles: IArticle[] = initialArticlesData.map(art => ({
+    ...JSON.parse(JSON.stringify(art)),
+    likes: art.likesRel.length // Пераратвараем масіў у лічбу
+  }));
 
   const options = {
     authors: authors.map(a => ({ label: a.name, value: a.name })),

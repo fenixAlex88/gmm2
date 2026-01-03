@@ -71,6 +71,20 @@ export default function PdfViewInternal({ src, mode = 'full' }: PdfViewInternalP
 		setPageNumber(1);
 	};
 
+	const LoadingView = () => (
+		<div className="p-10 flex flex-col items-center bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200">
+			<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-amber-500 mb-2" />
+			<p className="text-slate-500 text-sm">Загрузка дакумента...</p>
+		</div>
+	);
+
+	const ErrorView = () => (
+		<div className="p-10 flex flex-col items-center bg-rose-50 rounded-2xl border-2 border-dashed border-rose-200 text-center">
+			<p className="text-rose-600 font-bold mb-1">Дакумент не знойдзены</p>
+			<p className="text-rose-400 text-xs">Файл адсутнічае на серверы (Памылка 404)</p>
+		</div>
+	);
+
 	return (
 		<div id="pdf-render-container" className="w-full flex flex-col items-center min-h-[200px]">
 			<Document
@@ -78,18 +92,9 @@ export default function PdfViewInternal({ src, mode = 'full' }: PdfViewInternalP
 				options={PDF_OPTIONS}
 				onLoadSuccess={onDocumentLoadSuccess}
 				onItemClick={handleItemClick}
-				loading={
-					<div className="py-24 flex flex-col items-center gap-3">
-						<Loader2 className="animate-spin text-orange-500" size={40} />
-						<span className="text-slate-400 text-sm font-medium">Загрузка кнігі...</span>
-					</div>
-				}
-				error={
-					<div className="py-20 text-red-500 flex flex-col items-center gap-2">
-						<AlertCircle size={40} />
-						<span className="font-bold">Памылка загрузкі PDF</span>
-					</div>
-				}
+				loading={<LoadingView />}
+				error={<ErrorView />}
+				noData={<ErrorView />}
 			>
 				{mode === 'full' ? (
 					/* РЭЖЫМ ПОЎНАЙ СТУЖКІ (ДЛЯ FULLSCREEN) */

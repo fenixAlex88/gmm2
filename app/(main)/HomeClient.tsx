@@ -25,7 +25,8 @@ export default function HomeClient({ initialArticles, sections, options }: HomeC
 	const [isLoading, setIsLoading] = useState(false);
 	const [hasMore, setHasMore] = useState(initialArticles.length === 16);
 
-	const articlesCountRef = useRef(articles.length);
+	// Выкарыстоўваем для прадухілення дублявання запытаў пры аднолькавых фільтрах
+	const lastRequestKey = useRef("");
 
 	const [isSearchVisible, setIsSearchVisible] = useState(false);
 	const [isFiltersOpen, setIsFiltersOpen] = useState(false);
@@ -36,36 +37,52 @@ export default function HomeClient({ initialArticles, sections, options }: HomeC
 		sectionId: null, authors: [], places: [], subjects: [], tags: [],
 	});
 
-	useEffect(() => {
-		articlesCountRef.current = articles.length;
-	}, [articles]);
-
 	const loadArticles = useCallback(async (isLoadMore = false) => {
+		// Калі ўжо грузім — выходзім
 		if (isLoading) return;
+
 		setIsLoading(true);
-		const skip = isLoadMore ? articlesCountRef.current : 0;
+		const skip = isLoadMore ? articles.length : 0;
 
-		const newArticles = await getArticlesAction({
-			skip,
-			search,
-			sortBy,
-			filters
-		});
+		try {
+			const newArticles = await getArticlesAction({
+				skip,
+				search,
+				sortBy,
+				filters
+			});
 
-		if (isLoadMore) {
-			setArticles(prev => [...prev, ...newArticles]);
-		} else {
-			setArticles(newArticles);
+			if (isLoadMore) {
+				// Фільтруем дублікаты на ўсялякі выпадак
+				setArticles(prev => {
+					const existingIds = new Set(prev.map(a => a.id));
+					const uniqueNew = newArticles.filter(a => !existingIds.has(a.id));
+					return [...prev, ...uniqueNew];
+				});
+			} else {
+				setArticles(newArticles);
+			}
+
+			setHasMore(newArticles.length === 16);
+		} catch (error) {
+			console.error(error);
+		} finally {
+			setIsLoading(false);
 		}
+	}, [search, sortBy, filters, articles.length, isLoading]);
 
-		setHasMore(newArticles.length === 16);
-		setIsLoading(false);
-	}, [search, sortBy, filters]);
-
+	// Адзіны эфект для сінхранізацыі фільтраў (з дэбаўнсам)
 	useEffect(() => {
+		const currentKey = JSON.stringify({ search, sortBy, filters });
+
+		// Калі гэта пачатковы рэндэр (initialArticles ужо ёсць), не робім паўторны запыт
+		if (currentKey === lastRequestKey.current) return;
+
 		const t = setTimeout(() => {
+			lastRequestKey.current = currentKey;
 			loadArticles(false);
-		}, 500);
+		}, 400);
+
 		return () => clearTimeout(t);
 	}, [search, sortBy, filters, loadArticles]);
 
@@ -85,35 +102,25 @@ export default function HomeClient({ initialArticles, sections, options }: HomeC
 
 				<div className="flex items-center space-x-4">
 					<SortSelect value={sortBy} onChange={setSortBy} />
-					<button onClick={() => setIsFiltersOpen(!isFiltersOpen)} className="flex items-center space-x-2 px-5 py-2.5 rounded-xl border bg-white">
+					<button onClick={() => setIsFiltersOpen(!isFiltersOpen)} className={`flex items-center space-x-2 px-5 py-2.5 rounded-xl border ${isFiltersOpen ? 'bg-black text-white' : 'bg-white'}`}>
 						<SlidersHorizontal size={18} />
 						<span className="font-bold text-sm uppercase">Фільтры</span>
 					</button>
 				</div>
 			</div>
 
-			{isFiltersOpen && (
-				<FilterSection
-					sections={sections}
-					options={options}
-					filters={filters}
-					updateFilter={updateFilter}
-				/>
-			)}
+			{isFiltersOpen && <FilterSection sections={sections} options={options} filters={filters} updateFilter={updateFilter} />}
 
 			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
 				{articles.map(a => <ArticleCard key={a.id} article={a} />)}
-				{isLoading && [...Array(4)].map((_, i) => <div key={i} className="h-60 bg-slate-100 animate-pulse rounded-[2rem]" />)}
+				{isLoading && [...Array(4)].map((_, i) => <div key={i} className="h-80 bg-slate-100 animate-pulse rounded-3xl" />)}
 			</div>
 
 			{hasMore && !isLoading && (
 				<div className="flex justify-center pt-8">
-					<button
-						onClick={() => loadArticles(true)}
-						className="flex items-center space-x-2 px-8 py-4 bg-slate-900 text-white rounded-2xl hover:bg-[#800000] transition-all transform hover:scale-105 active:scale-95 shadow-xl"
-					>
+					<button onClick={() => loadArticles(true)} className="flex items-center space-x-2 px-8 py-4 bg-slate-900 text-white rounded-2xl hover:bg-[#800000] transition-all">
 						<Plus size={20} />
-						<span className="font-bold uppercase tracking-wider text-sm">Паказаць яшчэ</span>
+						<span className="font-bold uppercase text-sm">Паказаць яшчэ</span>
 					</button>
 				</div>
 			)}

@@ -45,15 +45,50 @@ function aggregateCities(arr: VisitRecord[]): [string, number][] {
 
 async function getEngagementStats(startDate: Date): Promise<EngagementStats> {
 	const [newCommentsCount, topLikedArticles, topCommentedArticles] = await Promise.all([
+		// Колькасць новых каментароў
 		prisma.comment.count({ where: { createdAt: { gte: startDate } } }),
+
+		// ТОП ПА ЛАЙКАХ ЗА ПЕРЫЯД
 		prisma.article.findMany({
-			orderBy: { likes: 'desc' },
-			take: 5,
-			select: { id: true, title: true, likes: true }
+			where: {
+				likesRel: {
+					some: { createdAt: { gte: startDate } }
+				}
+			},
+			select: {
+				id: true,
+				title: true,
+				_count: {
+					select: {
+						likesRel: { where: { createdAt: { gte: startDate } } }
+					}
+				}
+			},
+			orderBy: {
+				likesRel: { _count: 'desc' }
+			},
+			take: 5
 		}),
+
+		// ТОП ПА КАМЕНТАРАХ ЗА ПЕРЫЯД
 		prisma.article.findMany({
-			include: { _count: { select: { comments: true } } },
-			orderBy: { comments: { _count: 'desc' } },
+			where: {
+				comments: {
+					some: { createdAt: { gte: startDate } }
+				}
+			},
+			select: {
+				id: true,
+				title: true,
+				_count: {
+					select: {
+						comments: { where: { createdAt: { gte: startDate } } }
+					}
+				}
+			},
+			orderBy: {
+				comments: { _count: 'desc' }
+			},
 			take: 5
 		})
 	]);
@@ -63,7 +98,7 @@ async function getEngagementStats(startDate: Date): Promise<EngagementStats> {
 		topLikedArticles: topLikedArticles.map(a => ({
 			id: a.id,
 			title: a.title,
-			likes: a.likes || 0
+			likes: a._count.likesRel
 		})),
 		topCommentedArticles: topCommentedArticles.map(a => ({
 			id: a.id,
@@ -122,16 +157,18 @@ export default async function AdminAnalyticsPage({
 	const range = params.range || 'today';
 	let startDate = startOfDay(new Date());
 	if (range === 'week') startDate = subDays(new Date(), 7);
-	if (range === 'month') startDate = startOfMonth(new Date());
+	if (range === 'month') startDate = subDays(new Date(), 30);
 
+	// 1. Атрымліваем візіты за перыяд (уплывае на ўсе графікі і карту)
 	const visits = await prisma.visit.findMany({
 		where: { createdAt: { gte: startDate } },
 		orderBy: { createdAt: 'asc' },
 	}) as VisitRecord[];
 
+	// 2. Атрымліваем папулярныя старонкі і статыстыку ўцягнутасці за ТОЙ ЖА перыяд
 	const [popularPages, engagement] = await Promise.all([
-		getPopularPages(visits),
-		getEngagementStats(startDate)
+		getPopularPages(visits), // Фільтруецца праз масіў visits
+		getEngagementStats(startDate) // Фільтруецца праз SQL запыт
 	]);
 
 	const timeline = visits.reduce((acc: Record<string, number>, v) => {

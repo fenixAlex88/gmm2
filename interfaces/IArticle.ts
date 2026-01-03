@@ -25,6 +25,12 @@ interface Subject {
 	name: string;
 }
 
+interface Like {
+	id: number;
+	articleId: number;
+	createdAt: string | Date;
+}
+
 // --- Интерфейс статьи ---
 export interface IArticle {
 	id: number;
@@ -32,7 +38,6 @@ export interface IArticle {
 	title: string;
 	description?: string | null;
 	views: number;
-	likes: number;
 	contentHtml: string;
 	imageUrl?: string | null;
 
@@ -42,6 +47,7 @@ export interface IArticle {
 	tags?: TagItem[];
 	places?: Place[];
 	subjects?: Subject[];
+	likesRel?: Like[];
 
 	createdAt: string | Date;
 }

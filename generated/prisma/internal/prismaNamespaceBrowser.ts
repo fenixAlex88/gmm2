@@ -58,7 +58,8 @@ export const ModelName = {
   Tag: 'Tag',
   Section: 'Section',
   Comment: 'Comment',
-  Visit: 'Visit'
+  Visit: 'Visit',
+  Like: 'Like'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -85,7 +86,6 @@ export const ArticleScalarFieldEnum = {
   imageUrl: 'imageUrl',
   contentHtml: 'contentHtml',
   views: 'views',
-  likes: 'likes',
   createdAt: 'createdAt',
   authorId: 'authorId',
   sectionId: 'sectionId'
@@ -161,6 +161,15 @@ export const VisitScalarFieldEnum = {
 } as const
 
 export type VisitScalarFieldEnum = (typeof VisitScalarFieldEnum)[keyof typeof VisitScalarFieldEnum]
+
+
+export const LikeScalarFieldEnum = {
+  id: 'id',
+  articleId: 'articleId',
+  createdAt: 'createdAt'
+} as const
+
+export type LikeScalarFieldEnum = (typeof LikeScalarFieldEnum)[keyof typeof LikeScalarFieldEnum]
 
 
 export const SortOrder = {
