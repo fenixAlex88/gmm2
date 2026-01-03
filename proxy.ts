@@ -41,7 +41,7 @@ export function proxy(request: NextRequest) {
 			path: '/',
 			httpOnly: true,
 			sameSite: 'lax',
-			secure: process.env.NODE_ENV === 'production',
+			// secure: process.env.NODE_ENV === 'production',
 		});
 	}
 

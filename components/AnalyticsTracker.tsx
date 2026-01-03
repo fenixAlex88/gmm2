@@ -20,6 +20,7 @@ function AnalyticsInner() {
 				'x-internal-secret': process.env.NEXT_PUBLIC_INTERNAL_LOG_SECRET || ''
 			},
 			body: JSON.stringify({ path: fullPath }),
+			credentials: 'include',
 		}).catch(err => console.error('Logging error:', err));
 	}, [pathname, searchParams]);
 
