@@ -85,7 +85,7 @@ export default function ArticleCard({ article }: ArticleCardProps) {
 							<div className="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1 rounded-lg border border-slate-100">
 								<Heart size={13} className="text-slate-300 fill-slate-50" />
 								<span className="text-[11px] font-black text-slate-500 tabular-nums">
-									{(article.likes || 0).toLocaleString()}
+									{(article.likesRel?.length || 0).toLocaleString()}
 								</span>
 							</div>
 						</div>

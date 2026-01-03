@@ -99,7 +99,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ id: st
     likes: art.likesRel.length
   }));
 
-  const articleForHero: IArticle = {
+  const articleForHero = {
     ...JSON.parse(JSON.stringify(cachedArticle)),
     views: dynamicData?.views || 0,
     likes: dynamicData?._count?.likesRel || 0
