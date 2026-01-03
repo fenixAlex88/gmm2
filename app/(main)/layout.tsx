@@ -5,6 +5,7 @@ import Footer from "@/components/Footer";
 import ScrollToTopButton from '@/components/ScrollToTopButton';
 import { Providers } from '@/components/Providers';
 import NavigationBar from '@/components/NavigationBar';
+import AnalyticsTracker from '@/components/AnalyticsTracker';
 
 
 export const metadata: Metadata = {
@@ -18,6 +19,7 @@ export default function RootLayout({
   return (
     <html lang="be">
       <body className="flex min-h-screen bg-slate-50">
+        <AnalyticsTracker />
         <div className="flex flex-col flex-1 min-h-screen">
           <Header />
           <NavigationBar />

@@ -17,7 +17,7 @@ export async function login(prevState: AuthState | null, formData: FormData) {
 		const cookieStore = await cookies();
 		cookieStore.set('admin_session', process.env.ADMIN_SECRET!, {
 			httpOnly: true,
-			secure: process.env.NODE_ENV === 'production',
+			// secure: process.env.NODE_ENV === 'production',
 			maxAge: 60 * 60 * 24 * 7,
 			path: '/',
 		});

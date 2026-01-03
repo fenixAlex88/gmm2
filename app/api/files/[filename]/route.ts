@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { stat, open } from "fs/promises";
 import path from "path";
 import mime from "mime-types";
+import { existsSync } from 'fs';
 
 type RouteContext = {
 	params: Promise<{ filename: string }>;
@@ -11,6 +12,11 @@ export async function GET(req: NextRequest, context: RouteContext) {
 	try {
 		const { filename } = await context.params;
 		const filePath = path.join(process.cwd(), "storage", "uploads", filename);
+
+		if (!existsSync(filePath)) {
+			console.warn(`[FILE NOT FOUND] ${filename}`);
+			return new Response("Файл не знойдзены", { status: 404 });
+		}
 
 		// 1. Атрымліваем інфармацыю аб файле (памер)
 		const fileStat = await stat(filePath);

@@ -390,7 +390,8 @@ export const ModelName = {
   Author: 'Author',
   Tag: 'Tag',
   Section: 'Section',
-  Comment: 'Comment'
+  Comment: 'Comment',
+  Visit: 'Visit'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -406,7 +407,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "article" | "subject" | "place" | "author" | "tag" | "section" | "comment"
+    modelProps: "article" | "subject" | "place" | "author" | "tag" | "section" | "comment" | "visit"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -928,6 +929,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Visit: {
+      payload: Prisma.$VisitPayload<ExtArgs>
+      fields: Prisma.VisitFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.VisitFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VisitPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.VisitFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VisitPayload>
+        }
+        findFirst: {
+          args: Prisma.VisitFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VisitPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.VisitFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VisitPayload>
+        }
+        findMany: {
+          args: Prisma.VisitFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VisitPayload>[]
+        }
+        create: {
+          args: Prisma.VisitCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VisitPayload>
+        }
+        createMany: {
+          args: Prisma.VisitCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.VisitCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VisitPayload>[]
+        }
+        delete: {
+          args: Prisma.VisitDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VisitPayload>
+        }
+        update: {
+          args: Prisma.VisitUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VisitPayload>
+        }
+        deleteMany: {
+          args: Prisma.VisitDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.VisitUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.VisitUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VisitPayload>[]
+        }
+        upsert: {
+          args: Prisma.VisitUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$VisitPayload>
+        }
+        aggregate: {
+          args: Prisma.VisitAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateVisit>
+        }
+        groupBy: {
+          args: Prisma.VisitGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.VisitGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.VisitCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.VisitCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1036,6 +1111,21 @@ export const CommentScalarFieldEnum = {
 } as const
 
 export type CommentScalarFieldEnum = (typeof CommentScalarFieldEnum)[keyof typeof CommentScalarFieldEnum]
+
+
+export const VisitScalarFieldEnum = {
+  id: 'id',
+  ip: 'ip',
+  sessionId: 'sessionId',
+  path: 'path',
+  country: 'country',
+  city: 'city',
+  latitude: 'latitude',
+  longitude: 'longitude',
+  createdAt: 'createdAt'
+} as const
+
+export type VisitScalarFieldEnum = (typeof VisitScalarFieldEnum)[keyof typeof VisitScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1225,6 +1315,7 @@ export type GlobalOmitConfig = {
   tag?: Prisma.TagOmit
   section?: Prisma.SectionOmit
   comment?: Prisma.CommentOmit
+  visit?: Prisma.VisitOmit
 }
 
 /* Types for Logging */

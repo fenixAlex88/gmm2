@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google"; // 1. Добавляем хороший шрифт
-// import { Toaster } from "sonner"; // Рекомендую поставить: npm i sonner
+import { Inter } from "next/font/google";
 import "../globals.css";
 import Header from "@/components/Header";
+import AdminNavbar from '@/components/AdminNavbar';
 
 // Настройка шрифта
 const inter = Inter({ subsets: ["latin", "cyrillic"] });
@@ -26,7 +26,7 @@ export default function RootLayout({
       <body className={`${inter.className} flex min-h-screen flex-col bg-slate-50 text-slate-900`}>
 
         <Header />
-
+        <AdminNavbar />
         <main className="mx-8 px-4 pb-8 pt-24">
           {children}
         </main>
@@ -34,9 +34,6 @@ export default function RootLayout({
         <footer className="py-6 text-center text-slate-400 text-sm">
           © {new Date().getFullYear()} Геній майго месца
         </footer>
-
-        {/* Компонент для всплывающих уведомлений */}
-        {/* <Toaster position="bottom-right" richColors /> */}
       </body>
     </html>
   );

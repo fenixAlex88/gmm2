@@ -57,7 +57,8 @@ export const ModelName = {
   Author: 'Author',
   Tag: 'Tag',
   Section: 'Section',
-  Comment: 'Comment'
+  Comment: 'Comment',
+  Visit: 'Visit'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -145,6 +146,21 @@ export const CommentScalarFieldEnum = {
 } as const
 
 export type CommentScalarFieldEnum = (typeof CommentScalarFieldEnum)[keyof typeof CommentScalarFieldEnum]
+
+
+export const VisitScalarFieldEnum = {
+  id: 'id',
+  ip: 'ip',
+  sessionId: 'sessionId',
+  path: 'path',
+  country: 'country',
+  city: 'city',
+  latitude: 'latitude',
+  longitude: 'longitude',
+  createdAt: 'createdAt'
+} as const
+
+export type VisitScalarFieldEnum = (typeof VisitScalarFieldEnum)[keyof typeof VisitScalarFieldEnum]
 
 
 export const SortOrder = {

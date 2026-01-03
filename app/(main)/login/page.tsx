@@ -20,7 +20,7 @@ function SubmitButton() {
 
 export default function LoginPage() {
 	const [state, action] = useActionState(login, null);
-	const [showPassword, setShowPassword] = useState(false); // Стан для паказу пароля
+	const [showPassword, setShowPassword] = useState(false);
 
 	return (
 		<div className="flex items-center justify-center min-h-[60vh]">

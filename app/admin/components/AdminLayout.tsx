@@ -2,10 +2,12 @@
 
 import { useState } from 'react';
 import ArticleForm from './ArticleForm';
-import { IArticle } from '@/interfaces/IArticle';
 import Sidebar from './Sidebar';
+import { useRouter } from 'next/navigation';
 
 export default function AdminLayout({ initialArticles, sections, metadata }: any) {
+	const router = useRouter();
+
 	const [articles, setArticles] = useState(initialArticles);
 	const [selectedArticle, setSelectedArticle] = useState<any>(null);
 
@@ -13,6 +15,10 @@ export default function AdminLayout({ initialArticles, sections, metadata }: any
 		const res = await fetch('/api/admin/articles');
 		const data = await res.json();
 		setArticles(data);
+	};
+
+	const refreshMetadata = async () => {
+		router.refresh();
 	};
 
 	return (
@@ -23,6 +29,7 @@ export default function AdminLayout({ initialArticles, sections, metadata }: any
 				onSelect={setSelectedArticle}
 				selectedId={selectedArticle?.id}
 				onRefresh={refreshData}
+				refreshMetadata={refreshMetadata}
 			/>
 			<main className="flex-grow flex flex-col bg-white overflow-hidden relative">
 				<ArticleForm

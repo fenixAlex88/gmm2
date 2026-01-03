@@ -92,3 +92,20 @@ model Comment {
 
   @@map("comments")
 }
+
+model Visit {
+  id        Int      @id @default(autoincrement())
+  ip        String
+  sessionId String
+  path      String
+  
+  country   String?
+  city      String?
+  latitude  Float?
+  longitude Float?
+  
+  createdAt DateTime @default(now())
+
+  @@map("visits")
+  @@index([ip])
+}

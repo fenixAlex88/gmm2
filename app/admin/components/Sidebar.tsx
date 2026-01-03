@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Database, Plus, Trash2, X, Heart, Search, Star } from 'lucide-react';
 
-export default function Sidebar({ articles, metadata, onSelect, selectedId, onRefresh }: any) {
+export default function Sidebar({ articles, metadata, onSelect, selectedId, onRefresh, refreshMetadata }: any) {
 	const [activeTab, setActiveTab] = useState<'articles' | 'database'>('articles');
 	const [searchQuery, setSearchQuery] = useState('');
 
@@ -51,7 +51,7 @@ export default function Sidebar({ articles, metadata, onSelect, selectedId, onRe
 			method: 'DELETE',
 			body: JSON.stringify({ type, id })
 		});
-		if (res.ok) onRefresh();
+		if (res.ok) refreshMetadata();
 	};
 
 	return (

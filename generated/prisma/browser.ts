@@ -52,3 +52,8 @@ export type Section = Prisma.SectionModel
  * 
  */
 export type Comment = Prisma.CommentModel
+/**
+ * Model Visit
+ * 
+ */
+export type Visit = Prisma.VisitModel

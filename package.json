@@ -19,7 +19,9 @@
     "@tiptap/extension-text-style": "^3.14.0",
     "@tiptap/react": "^3.13.0",
     "@tiptap/starter-kit": "^3.13.0",
+    "chart.js": "^4.5.1",
     "cheerio": "^1.1.2",
+    "date-fns": "^4.1.0",
     "dotenv": "^17.2.3",
     "html-react-parser": "^5.2.10",
     "leaflet": "^1.9.4",
@@ -29,10 +31,12 @@
     "next-auth": "^4.24.13",
     "pg": "^8.16.3",
     "react": "^19.2.3",
+    "react-chartjs-2": "^5.3.1",
     "react-dom": "^19.2.3",
     "react-leaflet": "^5.0.0",
     "react-pdf": "^10.2.0",
-    "react-select": "^5.10.2"
+    "react-select": "^5.10.2",
+    "uuid": "^13.0.0"
   },
   "devDependencies": {
     "@types/cheerio": "^0.22.35",

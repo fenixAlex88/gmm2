@@ -1,10 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
-  allowedDevOrigins: ["office.baes.by"],
+  allowedDevOrigins: ["office.baes.by", '192.168.213.130'],
   experimental: {
     serverActions: {
-      allowedOrigins: ["office.baes.by"],
+      allowedOrigins: ["office.baes.by", '192.168.213.130'],
     },
   },
   images: {
