@@ -1,4 +1,5 @@
 'use client';
+
 import { useState, useRef, useEffect } from 'react';
 import {
 	Heart, Send, X, Link as LinkIcon, Check,
@@ -18,16 +19,18 @@ export default function ArticleActions({ articleId, initialLikes, title }: Props
 	const [isMenuOpen, setIsMenuOpen] = useState(false);
 	const menuRef = useRef<HTMLDivElement>(null);
 
-	// Закрытие меню при клике вне компонента
+	// Закрыццё меню пры кліку па-за ім
 	useEffect(() => {
 		const handleClickOutside = (event: MouseEvent) => {
 			if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
 				setIsMenuOpen(false);
 			}
 		};
-		document.addEventListener('mousedown', handleClickOutside);
+		if (isMenuOpen) {
+			document.addEventListener('mousedown', handleClickOutside);
+		}
 		return () => document.removeEventListener('mousedown', handleClickOutside);
-	}, []);
+	}, [isMenuOpen]);
 
 	const handleLike = async () => {
 		if (isLiked) return;
@@ -35,8 +38,9 @@ export default function ArticleActions({ articleId, initialLikes, title }: Props
 		setLikes(prev => prev + 1);
 		try {
 			const res = await fetch(`/api/articles/${articleId}/like`, { method: 'POST' });
+			if (!res.ok) throw new Error();
 			const data = await res.json();
-			if (data.likes) setLikes(data.likes);
+			if (data.likes !== undefined) setLikes(data.likes);
 		} catch {
 			setIsLiked(false);
 			setLikes(prev => prev - 1);
@@ -74,75 +78,114 @@ export default function ArticleActions({ articleId, initialLikes, title }: Props
 			await navigator.clipboard.writeText(window.location.href);
 			setCopied(true);
 			setTimeout(() => setCopied(false), 2000);
-		} catch (err) { console.error(err); }
+		} catch (err) {
+			console.error("Copy failed", err);
+		}
 	};
 
 	return (
-		<div className="flex flex-col gap-6 py-8 border-y border-slate-100 my-8">
+		<section
+			aria-label="Дзеянні з артыкулам"
+			className="flex flex-col gap-6 py-8 border-y border-slate-100 my-8"
+		>
 			<div className="flex items-center justify-between gap-4">
+
 				{/* Кнопка Лайка */}
 				<button
 					onClick={handleLike}
 					disabled={isLiked}
-					className={`flex items-center gap-3 px-6 py-2.5 rounded-2xl transition-all font-bold shadow-sm border ${isLiked
-						? 'bg-rose-500 border-rose-500 text-white'
-						: 'bg-white border-slate-200 text-slate-600 hover:border-rose-200 hover:bg-rose-50 hover:text-rose-500'
+					aria-label={isLiked ? `Вам спадабалася. Усяго лайкаў: ${likes}` : `Паставіць лайк. Зараз: ${likes}`}
+					aria-pressed={isLiked}
+					className={`flex items-center gap-3 px-6 py-2.5 rounded-2xl transition-all font-bold shadow-sm border focus:ring-2 focus:ring-rose-200 outline-none ${isLiked
+							? 'bg-rose-500 border-rose-500 text-white'
+							: 'bg-white border-slate-200 text-slate-600 hover:border-rose-200 hover:bg-rose-50 hover:text-rose-500'
 						}`}
 				>
-					<Heart size={18} className={isLiked ? 'fill-current' : ''} />
-					<span className="text-base">{likes.toLocaleString()}</span>
+					<Heart
+						size={18}
+						className={`${isLiked ? 'fill-current animate-pulse' : ''}`}
+						aria-hidden="true"
+					/>
+					<span className="text-base tabular-nums" aria-hidden="true">
+						{likes.toLocaleString()}
+					</span>
 				</button>
 
-				<div className="flex items-center gap-3" ref={menuRef}>
-					{/* Кнопка Копирования */}
+				<div className="flex items-center gap-2 sm:gap-3" ref={menuRef}>
+
+					{/* Кнопка Капіявання */}
 					<button
 						onClick={copyToClipboard}
-						className={`p-2.5 rounded-xl transition-all border ${copied ? 'bg-green-500 border-green-500 text-white' : 'bg-white border-slate-200 text-slate-400 hover:text-slate-600'
+						className={`p-2.5 rounded-xl transition-all border focus:ring-2 outline-none ${copied
+								? 'bg-green-500 border-green-500 text-white ring-green-200'
+								: 'bg-white border-slate-200 text-slate-400 hover:text-slate-600 ring-slate-100'
 							}`}
 						title="Скапіяваць спасылку"
+						aria-label={copied ? "Спасылка скапіявана" : "Скапіяваць спасылку на артыкул"}
 					>
-						{copied ? <Check size={18} /> : <LinkIcon size={18} />}
+						{copied ? <Check size={18} aria-hidden="true" /> : <LinkIcon size={18} aria-hidden="true" />}
 					</button>
 
-					{/* Выпадающее меню "Поделиться" */}
+					{/* Выпадальнае меню "Падзяліцца" */}
 					<div className="relative">
 						<button
 							onClick={() => setIsMenuOpen(!isMenuOpen)}
-							className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm transition-all border ${isMenuOpen
-								? 'bg-slate-900 border-slate-900 text-white'
-								: 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
+							// ГЭТА ВЫПРАЎЛЯЕ ПАМЫЛКУ LIGHTHOUSE:
+							aria-label="Падзяліцца артыкулам"
+							aria-expanded={isMenuOpen}
+							aria-haspopup="true"
+							aria-controls="share-menu"
+							className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-sm transition-all border focus:ring-2 outline-none ${isMenuOpen
+									? 'bg-slate-900 border-slate-900 text-white'
+									: 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
 								}`}
 						>
-							<Share2 size={18} />
+							<Share2 size={18} aria-hidden="true" />
 							<span className="hidden sm:inline">Падзяліцца</span>
-							<ChevronDown size={16} className={`transition-transform duration-300 ${isMenuOpen ? 'rotate-180' : ''}`} />
+							<ChevronDown
+								size={16}
+								className={`transition-transform duration-300 ${isMenuOpen ? 'rotate-180' : ''}`}
+								aria-hidden="true"
+							/>
 						</button>
 
-						{/* Список соцсетей */}
+						{/* Спіс сацсетак */}
 						{isMenuOpen && (
-							<div className="absolute right-0 top-full mt-3 w-56 bg-white border border-slate-100 rounded-2xl shadow-2xl p-2 z-50 animate-in fade-in slide-in-from-bottom-2 duration-200">
-								<div className="grid grid-cols-1 gap-0">
+							<div
+								id="share-menu"
+								role="menu"
+								className="absolute right-0 top-full mt-3 w-56 bg-white border border-slate-100 rounded-2xl shadow-2xl p-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200"
+							>
+								<div className="grid grid-cols-1 gap-1">
 									{shareOptions.map((option) => (
 										<button
 											key={option.id}
+											role="menuitem"
 											onClick={() => handleShare(option.id)}
-											className="flex items-center gap-3 w-full p-2.5 hover:bg-slate-50 rounded-xl transition-colors text-left"
+											className="flex items-center gap-3 w-full p-2.5 hover:bg-slate-50 rounded-xl transition-colors text-left focus:bg-slate-50 outline-none"
 										>
-											<div className={`w-8 h-8 flex items-center justify-center rounded-lg ${option.bg} ${option.color}`}>
+											<div
+												className={`w-8 h-8 flex items-center justify-center rounded-lg ${option.bg} ${option.color}`}
+												aria-hidden="true"
+											>
 												{option.icon}
 											</div>
-											<span className="text-sm font-semibold text-slate-700">{option.name}</span>
+											<span className="text-sm font-semibold text-slate-700">
+												{option.name}
+											</span>
 										</button>
 									))}
 								</div>
 								<div className="mt-2 pt-2 border-t border-slate-50 px-2 pb-1">
-									<p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">Выберыце платформу</p>
+									<p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">
+										Выберыце платформу
+									</p>
 								</div>
 							</div>
 						)}
 					</div>
 				</div>
 			</div>
-		</div>
+		</section>
 	);
 }

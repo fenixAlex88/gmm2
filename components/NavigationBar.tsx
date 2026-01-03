@@ -6,7 +6,7 @@ import GenericNavbar from './GenericNavbar';
 import HowUseModal from './modals/HowUseModal';
 import HowChooseModal from './modals/HowChooseModal';
 import DiffRoutesModal from './modals/DiffRoutesModal';
-// Імпорт мадалак...
+
 
 const MAIN_LINKS = [
 	{ title: 'Галоўная', href: '/', icon: <FileText size={16} /> },
@@ -30,8 +30,8 @@ export default function NavigationBar() {
 	return (
 		<>
 			<GenericNavbar links={MAIN_LINKS} onModalClick={setActiveModal} />
-	
-				{/* Секция модальных окон */}
+
+			{/* Секция модальных окон */}
 			<HowUseModal
 				isOpen={activeModal === 'how-use'}
 				onClose={() => setActiveModal(null)}

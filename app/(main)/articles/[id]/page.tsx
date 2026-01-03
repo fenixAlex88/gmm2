@@ -11,10 +11,6 @@ import { IArticle } from '@/interfaces/IArticle';
 import { Metadata } from 'next';
 import ViewCounter from '../components/ViewCounter';
 
-/**
- * Кэшуем статычныя дадзеныя артыкула (кантэнт, тэгі, аўтара).
- * Мы НЕ кэшуем лайкі і прагляды тут, каб яны заўсёды былі актуальнымі.
- */
 const getCachedArticle = (id: number) => unstable_cache(
   async () => {
     return await prisma.article.findUnique({
@@ -29,10 +25,7 @@ const getCachedArticle = (id: number) => unstable_cache(
     });
   },
   [`article-${id}`],
-  {
-    revalidate: 3600,
-    tags: ['articles', `article-${id}`]
-  }
+  { revalidate: 3600, tags: ['articles', `article-${id}`] }
 )();
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
@@ -40,9 +33,17 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const article = await getCachedArticle(Number(id));
   if (!article) return { title: 'Старонка не знойдзена' };
 
+  const baseUrl = 'https://gmm.by'; // Замяніце на ваш рэальны дамен
   return {
     title: `${article.title} | ГММ`,
     description: article.description || article.contentHtml.replace(/<[^>]*>/g, '').slice(0, 160),
+    openGraph: {
+      title: article.title,
+      description: article.description || '',
+      images: [article.imageUrl || '/images/og-default.jpg'],
+      type: 'article',
+      authors: [article.author?.name || 'ГММ'],
+    },
   };
 }
 
@@ -51,121 +52,119 @@ export default async function ArticlePage({ params }: { params: Promise<{ id: st
   const articleId = Number(id);
   if (isNaN(articleId)) notFound();
 
-  // 1. Статычныя дадзеныя
   const cachedArticle = await getCachedArticle(articleId);
   if (!cachedArticle) notFound();
 
-  // 2. Дынамічныя дадзеныя (Лайкі, Прагляды, Каментарыі)
-  // ВЫПРАЎЛЕНА: Прыбраны няісны 'author' з include каментарыяў
   const [dynamicData, popularArticlesData] = await Promise.all([
     prisma.article.findUnique({
       where: { id: articleId },
       select: {
         views: true,
-        _count: {
-          select: { likesRel: true }
-        },
-        comments: {
-          orderBy: { createdAt: 'desc' }
-          // Тут няма сувязі author, выкарыстоўваюцца палі authorName/authorImage
-        }
+        _count: { select: { likesRel: true } },
+        comments: { orderBy: { createdAt: 'desc' } }
       }
     }),
     prisma.article.findMany({
       where: { sectionId: cachedArticle.sectionId, id: { not: articleId } },
       take: 3,
       orderBy: { views: 'desc' },
-      include: {
-        section: true,
-        author: true,
-        likesRel: true
-      }
+      include: { section: true, author: true, likesRel: true }
     })
   ]);
 
   if (!dynamicData) notFound();
 
-  // 3. Трансфармацыя для асноўнага кампанента
-  // Мы злучаем кэшаваныя дадзеныя з дынамічнымі лічыльнікамі
-  const article: IArticle = {
+  const article = {
     ...JSON.parse(JSON.stringify(cachedArticle)),
     views: dynamicData.views,
     likes: dynamicData._count.likesRel
   };
 
-  // 4. Трансфармацыя падобных артыкулаў
   const popularArticles: IArticle[] = popularArticlesData.map(art => ({
     ...JSON.parse(JSON.stringify(art)),
     likes: art.likesRel.length
   }));
 
-  const articleForHero = {
-    ...JSON.parse(JSON.stringify(cachedArticle)),
-    views: dynamicData?.views || 0,
-    likes: dynamicData?._count?.likesRel || 0
+  // JSON-LD для Google
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": article.title,
+    "image": article.imageUrl,
+    "datePublished": article.createdAt,
+    "author": { "@type": "Person", "name": article.author?.name || "ГММ" },
+    "description": article.description
   };
 
   return (
-    <article className="min-h-screen bg-white">
-      <ViewCounter articleId={articleId} />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <article className="min-h-screen bg-white" itemScope itemType="https://schema.org/Article">
+        <ViewCounter articleId={articleId} />
 
-      <ArticleHero article={article} />
+        <ArticleHero article={article} />
 
-      <div className="mx-auto max-w-6xl px-6 py-12">
-        <div className="prose prose-slate prose-lg md:prose-xl max-w-none prose-img:rounded-[2.5rem] prose-img:shadow-2xl">
-          <ArticleContent html={article.contentHtml} />
-        </div>
+        <div className="mx-auto max-w-6xl px-6 py-12">
+          {/* Асноўны кантэнт */}
+          <section className="prose prose-slate prose-lg md:prose-xl max-w-none prose-img:rounded-[2.5rem] prose-img:shadow-2xl" itemProp="articleBody">
+            <ArticleContent html={article.contentHtml} />
+          </section>
 
-        <div className="mt-16">
-          <ArticleActions
-            articleId={articleId}
-            initialLikes={articleForHero.likes}
-            title={articleForHero.title}
-          />
-        </div>
+          {/* Сацыяльныя дзеянні */}
+          <section aria-label="Узаемадзеянне з артыкулам" className="mt-16">
+            <ArticleActions
+              articleId={articleId}
+              initialLikes={article.likes || 0}
+              title={article.title}
+            />
+          </section>
 
-        {cachedArticle.tags && cachedArticle.tags.length > 0 && (
-          <>
-            <div className="mb-16">
+          {/* Тэгі */}
+          {cachedArticle.tags && cachedArticle.tags.length > 0 && (
+            <nav aria-label="Тэгі артыкула" className="mb-16">
               <div className="flex flex-wrap gap-3">
                 {cachedArticle.tags.map(tag => (
-                  <div
-                    key={tag.id}
-                    className="flex items-center gap-2 bg-slate-50 text-slate-600 px-4 py-2 rounded-2xl text-sm font-bold border border-slate-100"
-                  >
-                    <TagIcon size={14} className="text-amber-500" />
+                  <div key={tag.id} className="flex items-center gap-2 bg-slate-50 text-slate-600 px-4 py-2 rounded-2xl text-sm font-bold border border-slate-100">
+                    <TagIcon size={14} className="text-amber-500" aria-hidden="true" />
                     {tag.name}
                   </div>
                 ))}
               </div>
-            </div>
-            <hr className="border-slate-100 mb-16" />
-          </>
-        )}
+              <hr className="border-slate-100 mt-16" aria-hidden="true" />
+            </nav>
+          )}
 
-        {popularArticles.length > 0 && (
-          <section className="mt-24 mb-24">
-            <div className="flex items-center gap-3 mb-10">
-              <div className="p-2.5 bg-amber-100 rounded-2xl text-amber-600">
-                <Sparkles size={24} />
+          {/* Падобныя матэрыялы */}
+          {popularArticles.length > 0 && (
+            <section className="mt-24 mb-24" aria-labelledby="similar-articles-title">
+              <div className="flex items-center gap-3 mb-10">
+                <div className="p-2.5 bg-amber-100 rounded-2xl text-amber-600" aria-hidden="true">
+                  <Sparkles size={24} />
+                </div>
+                <h3 id="similar-articles-title" className="text-3xl font-black text-slate-900 uppercase tracking-tighter">
+                  Вам можа спадабацца
+                </h3>
               </div>
-              <h3 className="text-3xl font-black text-slate-900 uppercase tracking-tighter">Вам можа спадабацца</h3>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-              {popularArticles.map((pop) => (
-                <ArticleCard key={pop.id} article={pop} />
-              ))}
-            </div>
-          </section>
-        )}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
+                {popularArticles.map((pop) => (
+                  <ArticleCard key={pop.id} article={pop} />
+                ))}
+              </div>
+            </section>
+          )}
 
-        <div className="bg-slate-50 rounded-[4rem] p-8 md:p-16 border border-slate-100">
-          <CommentSection
-            articleId={articleId}
-            initialComments={JSON.parse(JSON.stringify(dynamicData.comments))}
-          />
+          {/* Каментарыі */}
+          <section id="comments" aria-label="Каментарыі" className="bg-slate-50 rounded-[4rem] p-8 md:p-16 border border-slate-100">
+            <CommentSection
+              articleId={articleId}
+              initialComments={JSON.parse(JSON.stringify(dynamicData.comments))}
+            />
+          </section>
         </div>
-      </div>
-    </article>
+      </article>
+    </>
   );
 }
