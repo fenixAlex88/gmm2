@@ -24,7 +24,6 @@ export function proxy(request: NextRequest) {
 		const authCookie = request.cookies.get('admin_session');
 
 		if (authCookie?.value !== process.env.ADMIN_SECRET) {
-			if (!isDocument) return new NextResponse(null, { status: 401 });
 			return NextResponse.redirect(new URL('/login', request.url));
 		}
 		return NextResponse.next();

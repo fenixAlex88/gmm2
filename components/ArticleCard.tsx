@@ -65,7 +65,7 @@ export default function ArticleCard({ article }: ArticleCardProps) {
 						<div className="mt-auto pt-1 flex items-center justify-between border-t border-slate-50 text-slate-400">
 							<div className="flex items-center gap-2" aria-label={`Дата публікацыі: ${formattedDate}`}>
 								<Calendar size={14} aria-hidden="true" className="text-slate-300" />
-								<time dateTime={new Date(article.createdAt).toISOString()} className="text-[11px] font-bold tabular-nums">
+								<time dateTime={new Date(article.createdAt).toLocaleDateString('be-BY')} className="text-[11px] font-bold tabular-nums">
 									{formattedDate}
 								</time>
 							</div>
