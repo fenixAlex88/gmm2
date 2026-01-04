@@ -14,14 +14,6 @@ export default function ArticleCard({ article }: ArticleCardProps) {
 		? article.section
 		: article.section?.name;
 
-	const formattedDate = article.createdAt
-		? new Date(article.createdAt).toLocaleDateString('ru-RU', {
-			day: '2-digit',
-			month: '2-digit',
-			year: '2-digit',
-		})
-		: '--.--.--';
-
 	return (
 		<article className="h-full">
 			<Link
@@ -63,10 +55,10 @@ export default function ArticleCard({ article }: ArticleCardProps) {
 						</h2>
 
 						<div className="mt-auto pt-1 flex items-center justify-between border-t border-slate-50 text-slate-400">
-							<div className="flex items-center gap-2" aria-label={`Дата публікацыі: ${formattedDate}`}>
+							<div className="flex items-center gap-2" aria-label={`Дата публікацыі: ${article.displayDate}`}>
 								<Calendar size={14} aria-hidden="true" className="text-slate-300" />
-								<time dateTime={new Date(article.createdAt).toLocaleDateString('be-BY')} className="text-[11px] font-bold tabular-nums">
-									{formattedDate}
+								<time dateTime={article.isoDate} className="text-[11px] font-bold tabular-nums">
+									{article.displayDate}
 								</time>
 							</div>
 

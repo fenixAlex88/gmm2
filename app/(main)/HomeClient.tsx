@@ -88,7 +88,7 @@ export default function HomeClient({ initialArticles, sections, options }: HomeC
 	};
 
 	return (
-		<main className="max-w-[1400px] mx-auto p-4 space-y-6">
+		<main className="max-w-[1400px] mx-auto p-4 space-y-6 pb-12">
 			<h1 className="sr-only">Спіс артыкулаў і падарожжаў ГММ</h1>
 
 			<div className="flex flex-col md:flex-row justify-between items-center gap-4 border-b border-slate-100 pb-6">

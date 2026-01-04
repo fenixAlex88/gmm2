@@ -1,21 +1,7 @@
 import Image from 'next/image';
 import { User as UserIcon, Calendar, Eye, MapPin } from 'lucide-react';
-import { IArticle } from '@/interfaces/IArticle';
 
-interface ArticleHeroProps {
-	article: Omit<IArticle, 'createdAt'> & {
-		createdAt: string | Date;
-		section?: { name: string } | null;
-		author?: { name: string } | null;
-		description?: string | null;
-	};
-}
-
-export default function ArticleHero({ article }: ArticleHeroProps) {
-	const dateDisplay = article.createdAt
-		? new Date(article.createdAt).toLocaleDateString('be-BY')
-		: 'Дата не пазначана';
-
+export default function ArticleHero({ article }: { article: any }) {
 	const placeName = article.places?.[0]?.name;
 	const subjectName = article.subjects?.[0]?.name;
 
@@ -76,22 +62,22 @@ export default function ArticleHero({ article }: ArticleHeroProps) {
 
 					<div className="flex flex-wrap items-center gap-y-4 gap-x-6 mt-6 text-white text-sm font-bold">
 						{article.author && (
-							<div className="flex items-center gap-2" aria-label={`Аўтар: ${article.author.name}`}>
+							<div className="flex items-center gap-2">
 								<UserIcon size={18} className="text-amber-400" aria-hidden="true" />
 								<span>{article.author.name}</span>
 							</div>
 						)}
 						{placeName && (
-							<div className="flex items-center gap-2" aria-label={`Месца: ${placeName}`}>
+							<div className="flex items-center gap-2">
 								<MapPin size={18} className="text-blue-400" aria-hidden="true" />
 								<span>{placeName}</span>
 							</div>
 						)}
-						<div className="flex items-center gap-2" aria-label={`Дата публікацыі: ${dateDisplay}`}>
+						<div className="flex items-center gap-2" aria-label={`Дата публікацыі: ${article.displayDate}`}>
 							<Calendar size={18} className="text-amber-400" aria-hidden="true" />
-							<time dateTime={new Date(article.createdAt).toISOString()}>{dateDisplay}</time>
+							<time dateTime={article.isoDate}>{article.displayDate}</time>
 						</div>
-						<div className="flex items-center gap-2 bg-black/60 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/10" aria-label={`${article.views} праглядаў`}>
+						<div className="flex items-center gap-2 bg-black/60 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/10">
 							<Eye size={18} className="text-slate-300" aria-hidden="true" />
 							<span className="tabular-nums">{article.views?.toLocaleString() ?? 0}</span>
 						</div>

@@ -41,6 +41,9 @@ export interface IArticle {
 	contentHtml: string;
 	imageUrl?: string | null;
 
+	displayDate?: string;
+	isoDate?: string;
+
 	// Отношения
 	section: Section;
 	author?: Author | null;

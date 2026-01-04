@@ -54,6 +54,10 @@
   }
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 p {
   padding: 6px;
 }
@@ -144,7 +148,7 @@ iframe::-webkit-scrollbar-thumb {
 
 .prose a {
     color: #2563eb;
-    text-decoration: underline;
+    text-decoration: none;
     transition: color 0.2s;
 }
 
@@ -163,4 +167,45 @@ input::-webkit-credentials-auto-fill-button {
   visibility: hidden;
   display: none !important;
   pointer-events: none;
+}
+
+/* В редакторе помечаем место якоря иконкой или символом */
+.ProseMirror span[data-anchor] {
+  position: relative;
+  display: inline-block;
+  width: 17px;
+  height: 17px;
+}
+
+/* Иконка якоря */
+.ProseMirror span[data-anchor]::before {
+  content: '⚓';
+  font-size: 16px;
+  position: absolute;
+  top: -4px;
+  left: -3px;
+}
+
+/* Тултип с ID */
+.ProseMirror span[data-anchor]::after {
+  content: "ID: " attr(id);
+  position: absolute;
+  top: -25px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1e293b;
+  color: white;
+  padding: 2px 6px;
+  font-size: 11px;
+  border-radius: 4px;
+  white-space: nowrap;
+  z-index: 50;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+
+/* Показываем тултип только при наведении */
+.ProseMirror span[data-anchor]:hover::after {
+  opacity: 1;
 }

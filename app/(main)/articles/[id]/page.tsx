@@ -7,9 +7,23 @@ import ArticleHero from '../components/ArticleHero';
 import ArticleActions from '../components/ArticleActions';
 import ArticleCard from '@/components/ArticleCard';
 import ArticleContent from '@/app/(main)/articles/components/ArticleContent';
-import { IArticle } from '@/interfaces/IArticle';
 import { Metadata } from 'next';
 import ViewCounter from '../components/ViewCounter';
+
+// Хелпер для форматирования дат на сервере
+const formatArticle = (art: any) => {
+  const dateObj = new Date(art.createdAt);
+  return {
+    ...JSON.parse(JSON.stringify(art)),
+    displayDate: dateObj.toLocaleDateString('be-BY', {
+      day: '2-digit',
+      month: '2-digit',
+      year: '2-digit',
+    }),
+    isoDate: dateObj.toISOString(),
+    likes: art.likesRel ? art.likesRel.length : (art._count?.likesRel || 0)
+  };
+};
 
 const getCachedArticle = (id: number) => unstable_cache(
   async () => {
@@ -33,9 +47,8 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const article = await getCachedArticle(Number(id));
   if (!article) return { title: 'Старонка не знойдзена' };
 
-  const baseUrl = 'https://gmm.by';
   return {
-    title: `${article.title}`,
+    title: article.title,
     description: article.description || article.contentHtml.replace(/<[^>]*>/g, '').slice(0, 160),
     openGraph: {
       title: article.title,
@@ -74,24 +87,22 @@ export default async function ArticlePage({ params }: { params: Promise<{ id: st
 
   if (!dynamicData) notFound();
 
-  const article = {
-    ...JSON.parse(JSON.stringify(cachedArticle)),
+  // Форматируем основной артыкул
+  const article = formatArticle({
+    ...cachedArticle,
     views: dynamicData.views,
-    likes: dynamicData._count.likesRel
-  };
+    _count: dynamicData._count
+  });
 
-  const popularArticles: IArticle[] = popularArticlesData.map(art => ({
-    ...JSON.parse(JSON.stringify(art)),
-    likes: art.likesRel.length
-  }));
+  // Форматируем папулярныя артыкулы
+  const popularArticles = popularArticlesData.map(art => formatArticle(art));
 
-  // JSON-LD для Google
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
     "headline": article.title,
     "image": article.imageUrl,
-    "datePublished": article.createdAt,
+    "datePublished": article.isoDate,
     "author": { "@type": "Person", "name": article.author?.name || "ГММ" },
     "description": article.description
   };
@@ -108,12 +119,10 @@ export default async function ArticlePage({ params }: { params: Promise<{ id: st
         <ArticleHero article={article} />
 
         <div className="mx-auto max-w-6xl px-6 py-12">
-          {/* Асноўны кантэнт */}
           <section className="prose prose-slate prose-lg md:prose-xl max-w-none prose-img:rounded-[2.5rem] prose-img:shadow-2xl" itemProp="articleBody">
             <ArticleContent html={article.contentHtml} />
           </section>
 
-          {/* Сацыяльныя дзеянні */}
           <section aria-label="Узаемадзеянне з артыкулам" className="mt-16">
             <ArticleActions
               articleId={articleId}
@@ -122,7 +131,6 @@ export default async function ArticlePage({ params }: { params: Promise<{ id: st
             />
           </section>
 
-          {/* Тэгі */}
           {cachedArticle.tags && cachedArticle.tags.length > 0 && (
             <nav aria-label="Тэгі артыкула" className="mb-16">
               <div className="flex flex-wrap gap-3">
@@ -137,7 +145,6 @@ export default async function ArticlePage({ params }: { params: Promise<{ id: st
             </nav>
           )}
 
-          {/* Падобныя матэрыялы */}
           {popularArticles.length > 0 && (
             <section className="mt-24 mb-24" aria-labelledby="similar-articles-title">
               <div className="flex items-center gap-3 mb-10">
@@ -156,7 +163,6 @@ export default async function ArticlePage({ params }: { params: Promise<{ id: st
             </section>
           )}
 
-          {/* Каментарыі */}
           <section id="comments" aria-label="Каментарыі" className="bg-slate-50 rounded-[4rem] p-8 md:p-16 border border-slate-100">
             <CommentSection
               articleId={articleId}

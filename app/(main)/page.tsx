@@ -2,6 +2,24 @@ import { prisma } from "@/lib/prisma";
 import HomeClient from './HomeClient';
 import { IArticle } from "@/interfaces/IArticle";
 
+// Функцыя для фарматавання кожнага артыкула на серверы
+const formatArticleForClient = (art: any) => {
+  const dateObj = new Date(art.createdAt);
+  return {
+    ...JSON.parse(JSON.stringify(art)),
+    // Гатовы радок для адлюстравання (беларуская лакаль)
+    displayDate: dateObj.toLocaleDateString('be-BY', {
+      day: '2-digit',
+      month: '2-digit',
+      year: '2-digit',
+    }),
+    // Стандартны ISO фармат для атрабута dateTime
+    isoDate: dateObj.toISOString(),
+    // Падлік лайкаў
+    likes: art.likesRel ? art.likesRel.length : 0
+  };
+};
+
 export default async function HomePage() {
   const [initialArticlesData, sections, authors, places, subjects, tags] = await Promise.all([
     prisma.article.findMany({
@@ -25,13 +43,10 @@ export default async function HomePage() {
     prisma.tag.findMany({ select: { name: true } }),
   ]);
 
-  const initialArticles: IArticle[] = initialArticlesData.map(art => ({
-    ...JSON.parse(JSON.stringify(art)),
-    likes: art.likesRel.length
-  }));
+  // Фарматуем артыкулы на серверы
+  const initialArticles: IArticle[] = initialArticlesData.map(art => formatArticleForClient(art));
 
-  // 2. Ствараем JSON-LD для SEO
-  // Гэта кажа Google, што на старонцы ёсць спіс артыкулаў
+  // 2. Стварэнне JSON-LD для SEO
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "ItemList",
@@ -45,10 +60,10 @@ export default async function HomePage() {
         "url": `https://gmm.by/articles/${art.id}`,
         "headline": art.title,
         "image": art.imageUrl || "https://gmm.by/images/noImage.jpg",
-        "datePublished": art.createdAt,
+        "datePublished": art.isoDate, // Выкарыстоўваем стабільны ISO фармат
         "author": {
           "@type": "Person",
-          "name": typeof art.author === 'string' ? art.author : art.author?.name || "ГММ"
+          "name": art.author?.name || "ГММ"
         }
       }
     }))
