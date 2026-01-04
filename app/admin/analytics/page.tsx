@@ -3,6 +3,7 @@ import { startOfDay, subDays, startOfMonth, format } from 'date-fns';
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import AnalyticsDashboard from './AnalyticsDashboard';
+import { getPageLabel } from '@/lib/routes-config';
 
 // Вызначаем тыпы для ўнутраных даных
 export interface VisitRecord {
@@ -134,7 +135,7 @@ async function getPopularPages(visits: VisitRecord[]): Promise<PopularPage[]> {
 
 			return {
 				path,
-				title: article ? article.title : path,
+				title: article ? article.title : getPageLabel(path),
 				count
 			};
 		})
@@ -171,11 +172,17 @@ export default async function AdminAnalyticsPage({
 		getEngagementStats(startDate) // Фільтруецца праз SQL запыт
 	]);
 
+	function shiftToUTCPlus3(date: Date): Date {
+		return new Date(date.getTime() + 3 * 60 * 60 * 1000);
+	}
+
 	const timeline = visits.reduce((acc: Record<string, number>, v) => {
-		const date = format(v.createdAt, 'yyyy-MM-dd HH:00');
+		const shifted = shiftToUTCPlus3(v.createdAt);
+		const date = format(shifted, 'yyyy-MM-dd HH:00');
 		acc[date] = (acc[date] || 0) + 1;
 		return acc;
 	}, {});
+
 
 	const stats = {
 		total: visits.length,

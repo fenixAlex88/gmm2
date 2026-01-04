@@ -51,6 +51,7 @@ export type ArticleMinAggregateOutputType = {
   contentHtml: string | null
   views: number | null
   createdAt: Date | null
+  updatedAt: Date | null
   authorId: number | null
   sectionId: number | null
 }
@@ -64,6 +65,7 @@ export type ArticleMaxAggregateOutputType = {
   contentHtml: string | null
   views: number | null
   createdAt: Date | null
+  updatedAt: Date | null
   authorId: number | null
   sectionId: number | null
 }
@@ -77,6 +79,7 @@ export type ArticleCountAggregateOutputType = {
   contentHtml: number
   views: number
   createdAt: number
+  updatedAt: number
   authorId: number
   sectionId: number
   _all: number
@@ -108,6 +111,7 @@ export type ArticleMinAggregateInputType = {
   contentHtml?: true
   views?: true
   createdAt?: true
+  updatedAt?: true
   authorId?: true
   sectionId?: true
 }
@@ -121,6 +125,7 @@ export type ArticleMaxAggregateInputType = {
   contentHtml?: true
   views?: true
   createdAt?: true
+  updatedAt?: true
   authorId?: true
   sectionId?: true
 }
@@ -134,6 +139,7 @@ export type ArticleCountAggregateInputType = {
   contentHtml?: true
   views?: true
   createdAt?: true
+  updatedAt?: true
   authorId?: true
   sectionId?: true
   _all?: true
@@ -234,6 +240,7 @@ export type ArticleGroupByOutputType = {
   contentHtml: string
   views: number
   createdAt: Date
+  updatedAt: Date
   authorId: number | null
   sectionId: number
   _count: ArticleCountAggregateOutputType | null
@@ -270,6 +277,7 @@ export type ArticleWhereInput = {
   contentHtml?: Prisma.StringFilter<"Article"> | string
   views?: Prisma.IntFilter<"Article"> | number
   createdAt?: Prisma.DateTimeFilter<"Article"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"Article"> | Date | string
   authorId?: Prisma.IntNullableFilter<"Article"> | number | null
   sectionId?: Prisma.IntFilter<"Article"> | number
   likesRel?: Prisma.LikeListRelationFilter
@@ -290,6 +298,7 @@ export type ArticleOrderByWithRelationInput = {
   contentHtml?: Prisma.SortOrder
   views?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   authorId?: Prisma.SortOrderInput | Prisma.SortOrder
   sectionId?: Prisma.SortOrder
   likesRel?: Prisma.LikeOrderByRelationAggregateInput
@@ -313,6 +322,7 @@ export type ArticleWhereUniqueInput = Prisma.AtLeast<{
   contentHtml?: Prisma.StringFilter<"Article"> | string
   views?: Prisma.IntFilter<"Article"> | number
   createdAt?: Prisma.DateTimeFilter<"Article"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"Article"> | Date | string
   authorId?: Prisma.IntNullableFilter<"Article"> | number | null
   sectionId?: Prisma.IntFilter<"Article"> | number
   likesRel?: Prisma.LikeListRelationFilter
@@ -333,6 +343,7 @@ export type ArticleOrderByWithAggregationInput = {
   contentHtml?: Prisma.SortOrder
   views?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   authorId?: Prisma.SortOrderInput | Prisma.SortOrder
   sectionId?: Prisma.SortOrder
   _count?: Prisma.ArticleCountOrderByAggregateInput
@@ -354,6 +365,7 @@ export type ArticleScalarWhereWithAggregatesInput = {
   contentHtml?: Prisma.StringWithAggregatesFilter<"Article"> | string
   views?: Prisma.IntWithAggregatesFilter<"Article"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Article"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Article"> | Date | string
   authorId?: Prisma.IntNullableWithAggregatesFilter<"Article"> | number | null
   sectionId?: Prisma.IntWithAggregatesFilter<"Article"> | number
 }
@@ -366,6 +378,7 @@ export type ArticleCreateInput = {
   contentHtml: string
   views?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   likesRel?: Prisma.LikeCreateNestedManyWithoutArticleInput
   author?: Prisma.AuthorCreateNestedOneWithoutArticlesInput
   tags?: Prisma.TagCreateNestedManyWithoutArticlesInput
@@ -384,6 +397,7 @@ export type ArticleUncheckedCreateInput = {
   contentHtml: string
   views?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   authorId?: number | null
   sectionId: number
   likesRel?: Prisma.LikeUncheckedCreateNestedManyWithoutArticleInput
@@ -401,6 +415,7 @@ export type ArticleUpdateInput = {
   contentHtml?: Prisma.StringFieldUpdateOperationsInput | string
   views?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   likesRel?: Prisma.LikeUpdateManyWithoutArticleNestedInput
   author?: Prisma.AuthorUpdateOneWithoutArticlesNestedInput
   tags?: Prisma.TagUpdateManyWithoutArticlesNestedInput
@@ -419,6 +434,7 @@ export type ArticleUncheckedUpdateInput = {
   contentHtml?: Prisma.StringFieldUpdateOperationsInput | string
   views?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   authorId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sectionId?: Prisma.IntFieldUpdateOperationsInput | number
   likesRel?: Prisma.LikeUncheckedUpdateManyWithoutArticleNestedInput
@@ -437,6 +453,7 @@ export type ArticleCreateManyInput = {
   contentHtml: string
   views?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   authorId?: number | null
   sectionId: number
 }
@@ -449,6 +466,7 @@ export type ArticleUpdateManyMutationInput = {
   contentHtml?: Prisma.StringFieldUpdateOperationsInput | string
   views?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ArticleUncheckedUpdateManyInput = {
@@ -460,6 +478,7 @@ export type ArticleUncheckedUpdateManyInput = {
   contentHtml?: Prisma.StringFieldUpdateOperationsInput | string
   views?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   authorId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sectionId?: Prisma.IntFieldUpdateOperationsInput | number
 }
@@ -473,6 +492,7 @@ export type ArticleCountOrderByAggregateInput = {
   contentHtml?: Prisma.SortOrder
   views?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   authorId?: Prisma.SortOrder
   sectionId?: Prisma.SortOrder
 }
@@ -494,6 +514,7 @@ export type ArticleMaxOrderByAggregateInput = {
   contentHtml?: Prisma.SortOrder
   views?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   authorId?: Prisma.SortOrder
   sectionId?: Prisma.SortOrder
 }
@@ -507,6 +528,7 @@ export type ArticleMinOrderByAggregateInput = {
   contentHtml?: Prisma.SortOrder
   views?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   authorId?: Prisma.SortOrder
   sectionId?: Prisma.SortOrder
 }
@@ -796,6 +818,7 @@ export type ArticleCreateWithoutSubjectsInput = {
   contentHtml: string
   views?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   likesRel?: Prisma.LikeCreateNestedManyWithoutArticleInput
   author?: Prisma.AuthorCreateNestedOneWithoutArticlesInput
   tags?: Prisma.TagCreateNestedManyWithoutArticlesInput
@@ -813,6 +836,7 @@ export type ArticleUncheckedCreateWithoutSubjectsInput = {
   contentHtml: string
   views?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   authorId?: number | null
   sectionId: number
   likesRel?: Prisma.LikeUncheckedCreateNestedManyWithoutArticleInput
@@ -854,6 +878,7 @@ export type ArticleScalarWhereInput = {
   contentHtml?: Prisma.StringFilter<"Article"> | string
   views?: Prisma.IntFilter<"Article"> | number
   createdAt?: Prisma.DateTimeFilter<"Article"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"Article"> | Date | string
   authorId?: Prisma.IntNullableFilter<"Article"> | number | null
   sectionId?: Prisma.IntFilter<"Article"> | number
 }
@@ -866,6 +891,7 @@ export type ArticleCreateWithoutPlacesInput = {
   contentHtml: string
   views?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   likesRel?: Prisma.LikeCreateNestedManyWithoutArticleInput
   author?: Prisma.AuthorCreateNestedOneWithoutArticlesInput
   tags?: Prisma.TagCreateNestedManyWithoutArticlesInput
@@ -883,6 +909,7 @@ export type ArticleUncheckedCreateWithoutPlacesInput = {
   contentHtml: string
   views?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   authorId?: number | null
   sectionId: number
   likesRel?: Prisma.LikeUncheckedCreateNestedManyWithoutArticleInput
@@ -920,6 +947,7 @@ export type ArticleCreateWithoutAuthorInput = {
   contentHtml: string
   views?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   likesRel?: Prisma.LikeCreateNestedManyWithoutArticleInput
   tags?: Prisma.TagCreateNestedManyWithoutArticlesInput
   subjects?: Prisma.SubjectCreateNestedManyWithoutArticlesInput
@@ -937,6 +965,7 @@ export type ArticleUncheckedCreateWithoutAuthorInput = {
   contentHtml: string
   views?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   sectionId: number
   likesRel?: Prisma.LikeUncheckedCreateNestedManyWithoutArticleInput
   tags?: Prisma.TagUncheckedCreateNestedManyWithoutArticlesInput
@@ -979,6 +1008,7 @@ export type ArticleCreateWithoutTagsInput = {
   contentHtml: string
   views?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   likesRel?: Prisma.LikeCreateNestedManyWithoutArticleInput
   author?: Prisma.AuthorCreateNestedOneWithoutArticlesInput
   subjects?: Prisma.SubjectCreateNestedManyWithoutArticlesInput
@@ -996,6 +1026,7 @@ export type ArticleUncheckedCreateWithoutTagsInput = {
   contentHtml: string
   views?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   authorId?: number | null
   sectionId: number
   likesRel?: Prisma.LikeUncheckedCreateNestedManyWithoutArticleInput
@@ -1033,6 +1064,7 @@ export type ArticleCreateWithoutSectionInput = {
   contentHtml: string
   views?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   likesRel?: Prisma.LikeCreateNestedManyWithoutArticleInput
   author?: Prisma.AuthorCreateNestedOneWithoutArticlesInput
   tags?: Prisma.TagCreateNestedManyWithoutArticlesInput
@@ -1050,6 +1082,7 @@ export type ArticleUncheckedCreateWithoutSectionInput = {
   contentHtml: string
   views?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   authorId?: number | null
   likesRel?: Prisma.LikeUncheckedCreateNestedManyWithoutArticleInput
   tags?: Prisma.TagUncheckedCreateNestedManyWithoutArticlesInput
@@ -1092,6 +1125,7 @@ export type ArticleCreateWithoutCommentsInput = {
   contentHtml: string
   views?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   likesRel?: Prisma.LikeCreateNestedManyWithoutArticleInput
   author?: Prisma.AuthorCreateNestedOneWithoutArticlesInput
   tags?: Prisma.TagCreateNestedManyWithoutArticlesInput
@@ -1109,6 +1143,7 @@ export type ArticleUncheckedCreateWithoutCommentsInput = {
   contentHtml: string
   views?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   authorId?: number | null
   sectionId: number
   likesRel?: Prisma.LikeUncheckedCreateNestedManyWithoutArticleInput
@@ -1141,6 +1176,7 @@ export type ArticleUpdateWithoutCommentsInput = {
   contentHtml?: Prisma.StringFieldUpdateOperationsInput | string
   views?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   likesRel?: Prisma.LikeUpdateManyWithoutArticleNestedInput
   author?: Prisma.AuthorUpdateOneWithoutArticlesNestedInput
   tags?: Prisma.TagUpdateManyWithoutArticlesNestedInput
@@ -1158,6 +1194,7 @@ export type ArticleUncheckedUpdateWithoutCommentsInput = {
   contentHtml?: Prisma.StringFieldUpdateOperationsInput | string
   views?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   authorId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sectionId?: Prisma.IntFieldUpdateOperationsInput | number
   likesRel?: Prisma.LikeUncheckedUpdateManyWithoutArticleNestedInput
@@ -1174,6 +1211,7 @@ export type ArticleCreateWithoutLikesRelInput = {
   contentHtml: string
   views?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   author?: Prisma.AuthorCreateNestedOneWithoutArticlesInput
   tags?: Prisma.TagCreateNestedManyWithoutArticlesInput
   subjects?: Prisma.SubjectCreateNestedManyWithoutArticlesInput
@@ -1191,6 +1229,7 @@ export type ArticleUncheckedCreateWithoutLikesRelInput = {
   contentHtml: string
   views?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   authorId?: number | null
   sectionId: number
   tags?: Prisma.TagUncheckedCreateNestedManyWithoutArticlesInput
@@ -1223,6 +1262,7 @@ export type ArticleUpdateWithoutLikesRelInput = {
   contentHtml?: Prisma.StringFieldUpdateOperationsInput | string
   views?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   author?: Prisma.AuthorUpdateOneWithoutArticlesNestedInput
   tags?: Prisma.TagUpdateManyWithoutArticlesNestedInput
   subjects?: Prisma.SubjectUpdateManyWithoutArticlesNestedInput
@@ -1240,6 +1280,7 @@ export type ArticleUncheckedUpdateWithoutLikesRelInput = {
   contentHtml?: Prisma.StringFieldUpdateOperationsInput | string
   views?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   authorId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sectionId?: Prisma.IntFieldUpdateOperationsInput | number
   tags?: Prisma.TagUncheckedUpdateManyWithoutArticlesNestedInput
@@ -1256,6 +1297,7 @@ export type ArticleUpdateWithoutSubjectsInput = {
   contentHtml?: Prisma.StringFieldUpdateOperationsInput | string
   views?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   likesRel?: Prisma.LikeUpdateManyWithoutArticleNestedInput
   author?: Prisma.AuthorUpdateOneWithoutArticlesNestedInput
   tags?: Prisma.TagUpdateManyWithoutArticlesNestedInput
@@ -1273,6 +1315,7 @@ export type ArticleUncheckedUpdateWithoutSubjectsInput = {
   contentHtml?: Prisma.StringFieldUpdateOperationsInput | string
   views?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   authorId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sectionId?: Prisma.IntFieldUpdateOperationsInput | number
   likesRel?: Prisma.LikeUncheckedUpdateManyWithoutArticleNestedInput
@@ -1290,6 +1333,7 @@ export type ArticleUncheckedUpdateManyWithoutSubjectsInput = {
   contentHtml?: Prisma.StringFieldUpdateOperationsInput | string
   views?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   authorId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sectionId?: Prisma.IntFieldUpdateOperationsInput | number
 }
@@ -1302,6 +1346,7 @@ export type ArticleUpdateWithoutPlacesInput = {
   contentHtml?: Prisma.StringFieldUpdateOperationsInput | string
   views?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   likesRel?: Prisma.LikeUpdateManyWithoutArticleNestedInput
   author?: Prisma.AuthorUpdateOneWithoutArticlesNestedInput
   tags?: Prisma.TagUpdateManyWithoutArticlesNestedInput
@@ -1319,6 +1364,7 @@ export type ArticleUncheckedUpdateWithoutPlacesInput = {
   contentHtml?: Prisma.StringFieldUpdateOperationsInput | string
   views?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   authorId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sectionId?: Prisma.IntFieldUpdateOperationsInput | number
   likesRel?: Prisma.LikeUncheckedUpdateManyWithoutArticleNestedInput
@@ -1336,6 +1382,7 @@ export type ArticleUncheckedUpdateManyWithoutPlacesInput = {
   contentHtml?: Prisma.StringFieldUpdateOperationsInput | string
   views?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   authorId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sectionId?: Prisma.IntFieldUpdateOperationsInput | number
 }
@@ -1349,6 +1396,7 @@ export type ArticleCreateManyAuthorInput = {
   contentHtml: string
   views?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   sectionId: number
 }
 
@@ -1360,6 +1408,7 @@ export type ArticleUpdateWithoutAuthorInput = {
   contentHtml?: Prisma.StringFieldUpdateOperationsInput | string
   views?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   likesRel?: Prisma.LikeUpdateManyWithoutArticleNestedInput
   tags?: Prisma.TagUpdateManyWithoutArticlesNestedInput
   subjects?: Prisma.SubjectUpdateManyWithoutArticlesNestedInput
@@ -1377,6 +1426,7 @@ export type ArticleUncheckedUpdateWithoutAuthorInput = {
   contentHtml?: Prisma.StringFieldUpdateOperationsInput | string
   views?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sectionId?: Prisma.IntFieldUpdateOperationsInput | number
   likesRel?: Prisma.LikeUncheckedUpdateManyWithoutArticleNestedInput
   tags?: Prisma.TagUncheckedUpdateManyWithoutArticlesNestedInput
@@ -1394,6 +1444,7 @@ export type ArticleUncheckedUpdateManyWithoutAuthorInput = {
   contentHtml?: Prisma.StringFieldUpdateOperationsInput | string
   views?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sectionId?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
@@ -1405,6 +1456,7 @@ export type ArticleUpdateWithoutTagsInput = {
   contentHtml?: Prisma.StringFieldUpdateOperationsInput | string
   views?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   likesRel?: Prisma.LikeUpdateManyWithoutArticleNestedInput
   author?: Prisma.AuthorUpdateOneWithoutArticlesNestedInput
   subjects?: Prisma.SubjectUpdateManyWithoutArticlesNestedInput
@@ -1422,6 +1474,7 @@ export type ArticleUncheckedUpdateWithoutTagsInput = {
   contentHtml?: Prisma.StringFieldUpdateOperationsInput | string
   views?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   authorId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sectionId?: Prisma.IntFieldUpdateOperationsInput | number
   likesRel?: Prisma.LikeUncheckedUpdateManyWithoutArticleNestedInput
@@ -1439,6 +1492,7 @@ export type ArticleUncheckedUpdateManyWithoutTagsInput = {
   contentHtml?: Prisma.StringFieldUpdateOperationsInput | string
   views?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   authorId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sectionId?: Prisma.IntFieldUpdateOperationsInput | number
 }
@@ -1452,6 +1506,7 @@ export type ArticleCreateManySectionInput = {
   contentHtml: string
   views?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   authorId?: number | null
 }
 
@@ -1463,6 +1518,7 @@ export type ArticleUpdateWithoutSectionInput = {
   contentHtml?: Prisma.StringFieldUpdateOperationsInput | string
   views?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   likesRel?: Prisma.LikeUpdateManyWithoutArticleNestedInput
   author?: Prisma.AuthorUpdateOneWithoutArticlesNestedInput
   tags?: Prisma.TagUpdateManyWithoutArticlesNestedInput
@@ -1480,6 +1536,7 @@ export type ArticleUncheckedUpdateWithoutSectionInput = {
   contentHtml?: Prisma.StringFieldUpdateOperationsInput | string
   views?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   authorId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   likesRel?: Prisma.LikeUncheckedUpdateManyWithoutArticleNestedInput
   tags?: Prisma.TagUncheckedUpdateManyWithoutArticlesNestedInput
@@ -1497,6 +1554,7 @@ export type ArticleUncheckedUpdateManyWithoutSectionInput = {
   contentHtml?: Prisma.StringFieldUpdateOperationsInput | string
   views?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   authorId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
@@ -1576,6 +1634,7 @@ export type ArticleSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   contentHtml?: boolean
   views?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   authorId?: boolean
   sectionId?: boolean
   likesRel?: boolean | Prisma.Article$likesRelArgs<ExtArgs>
@@ -1597,6 +1656,7 @@ export type ArticleSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   contentHtml?: boolean
   views?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   authorId?: boolean
   sectionId?: boolean
   author?: boolean | Prisma.Article$authorArgs<ExtArgs>
@@ -1612,6 +1672,7 @@ export type ArticleSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   contentHtml?: boolean
   views?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   authorId?: boolean
   sectionId?: boolean
   author?: boolean | Prisma.Article$authorArgs<ExtArgs>
@@ -1627,11 +1688,12 @@ export type ArticleSelectScalar = {
   contentHtml?: boolean
   views?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   authorId?: boolean
   sectionId?: boolean
 }
 
-export type ArticleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "priority" | "title" | "description" | "imageUrl" | "contentHtml" | "views" | "createdAt" | "authorId" | "sectionId", ExtArgs["result"]["article"]>
+export type ArticleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "priority" | "title" | "description" | "imageUrl" | "contentHtml" | "views" | "createdAt" | "updatedAt" | "authorId" | "sectionId", ExtArgs["result"]["article"]>
 export type ArticleInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   likesRel?: boolean | Prisma.Article$likesRelArgs<ExtArgs>
   author?: boolean | Prisma.Article$authorArgs<ExtArgs>
@@ -1671,6 +1733,7 @@ export type $ArticlePayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     contentHtml: string
     views: number
     createdAt: Date
+    updatedAt: Date
     authorId: number | null
     sectionId: number
   }, ExtArgs["result"]["article"]>
@@ -2111,6 +2174,7 @@ export interface ArticleFieldRefs {
   readonly contentHtml: Prisma.FieldRef<"Article", 'String'>
   readonly views: Prisma.FieldRef<"Article", 'Int'>
   readonly createdAt: Prisma.FieldRef<"Article", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"Article", 'DateTime'>
   readonly authorId: Prisma.FieldRef<"Article", 'Int'>
   readonly sectionId: Prisma.FieldRef<"Article", 'Int'>
 }

@@ -205,6 +205,7 @@ export async function PUT(req: Request) {
                 description,
                 contentHtml,
                 imageUrl,
+                updatedAt: new Date(),
                 section: { connect: { id: Number(sectionId) } },
                 author: authorName ? {
                     connectOrCreate: {

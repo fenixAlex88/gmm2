@@ -1,4 +1,6 @@
 // app/sitemap.ts
+import { prisma } from '@/lib/prisma';
+import { STATIC_ROUTES } from '@/lib/routes-config';
 import { MetadataRoute } from 'next'
 
 // Калі ў вас ёсць API або база дадзеных, імпартуйце функцыю атрымання артыкулаў
@@ -8,33 +10,28 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 	const baseUrl = 'https://gmm.by'
 
 	// 1. Статычныя старонкі
-	const routes = [
-		'',
-		'/articles',
-		'/about_project',
-		'/partner',
-		'/support'
-	].map((route) => ({
-		url: `${baseUrl}${route}`,
+	const routes = Object.values(STATIC_ROUTES).map((route) => ({
+		url: `${baseUrl}${route.path}`,
 		lastModified: new Date().toISOString(),
 		changeFrequency: 'daily' as const,
-		priority: 1.0,
-	}))
+		priority: route.priority,
+	}));
 
 	// 2. Дынамічныя старонкі (артыкулы)
 	// У рэальным праекце вы будзеце рабіць запыт да БД:
-	/*
-	const posts = await getAllPosts()
-	const postRoutes = posts.map((post) => ({
-	  url: `${baseUrl}/articles/${post.slug}`,
-	  lastModified: post.updatedAt,
+	
+	const articles = await prisma.article.findMany({
+		select: {
+			id: true,
+			updatedAt: true
+		}
+	});
+	const articleRoutes = articles.map((article) => ({
+		url: `${baseUrl}/articles/${article.id}`,
+		lastModified: article.updatedAt,
 	  changeFrequency: 'weekly' as const,
 	  priority: 0.7,
 	}))
-	*/
 
-	// Пакуль дадамо пустую заглушку для дынамічных дадзеных
-	const postRoutes: MetadataRoute.Sitemap = []
-
-	return [...routes, ...postRoutes]
+	return [...routes, ...articleRoutes]
 }

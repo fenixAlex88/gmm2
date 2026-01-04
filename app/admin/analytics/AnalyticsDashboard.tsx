@@ -20,7 +20,7 @@ import {
 	ChartData,
 	ScriptableContext
 } from 'chart.js';
-import { MapPin, MessageSquareText, TrendingUp, Users, Flame, MessageCircle } from 'lucide-react';
+import { MapPin, MessageSquareText, TrendingUp, Users, Flame, MessageCircle, Heart } from 'lucide-react';
 
 ChartJS.register(
 	CategoryScale,
@@ -293,11 +293,12 @@ export default function AnalyticsDashboard({ initialData, currentRange }: Analyt
 			</div>
 
 			{/* METRICS QUICK VIEW */}
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
 				<StatCard title="Прагляды" value={total} icon={<TrendingUp size={26} />} color="text-blue-600" iconBg="bg-blue-50" />
 				<StatCard title="Сесіі" value={uniqueSessions} icon={<Users size={26} />} color="text-green-600" iconBg="bg-green-50" />
 				<StatCard title="Каментары" value={newComments} icon={<MessageSquareText size={26} />} color="text-orange-600" iconBg="bg-orange-50" />
-				<StatCard title="Геа-кропкі" value={points.length} icon={<MapPin size={26} />} color="text-purple-600" iconBg="bg-purple-50" />
+				<StatCard title="Лайкi" value={topLiked.reduce((sum, article) => sum + (article.likes || 0), 0)} icon={<Heart size={26} />} color="text-red-600" iconBg="bg-orange-50" />
+				<StatCard title="Унікальныя кропкі" value={new Set(points.map(p => `${p.lat},${p.lng}`)).size} icon={<MapPin size={26} />} color="text-purple-600" iconBg="bg-purple-50" />
 			</div>
 
 			{/* РАД 1: Дынаміка наведванняў (Full Width) */}
@@ -378,7 +379,7 @@ export default function AnalyticsDashboard({ initialData, currentRange }: Analyt
 
 			{/* РАД 4: Папулярны кантэнт (Full Width) */}
 			<div className="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
-				<SectionHeader title="Папулярны кантэнт" color="bg-blue-600" />
+				<SectionHeader title="Папулярны кантэнт (топ-15)" color="bg-blue-600" />
 				<div className="overflow-x-auto mt-4">
 					<table className="w-full text-left border-collapse">
 						<thead>

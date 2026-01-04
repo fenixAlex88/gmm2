@@ -172,6 +172,7 @@ function LinkOrButton({
 	if (link.href) {
 		return (
 			<Link
+				prefetch={false}
 				href={link.href}
 				className={baseStyles}
 				onClick={() => isMobile && onClick?.('')}

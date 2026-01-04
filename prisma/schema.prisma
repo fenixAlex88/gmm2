@@ -5,7 +5,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
 }
 
 model Article {
@@ -16,8 +15,9 @@ model Article {
   imageUrl    String?
   contentHtml String
   views       Int      @default(0)
-  likesRel Like[]
+  likesRel    Like[]
   createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now())
 
   authorId Int?
   author   Author? @relation(fields: [authorId], references: [id])
@@ -95,20 +95,20 @@ model Comment {
 }
 
 model Visit {
-  id        Int      @id @default(autoincrement())
+  id        Int    @id @default(autoincrement())
   ip        String
   sessionId String
   path      String
-  
+
   country   String?
   city      String?
   latitude  Float?
   longitude Float?
-  
+
   createdAt DateTime @default(now())
 
-  @@map("visits")
   @@index([ip])
+  @@map("visits")
 }
 
 model Like {

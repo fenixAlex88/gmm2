@@ -33,14 +33,14 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const article = await getCachedArticle(Number(id));
   if (!article) return { title: 'Старонка не знойдзена' };
 
-  const baseUrl = 'https://gmm.by'; // Замяніце на ваш рэальны дамен
+  const baseUrl = 'https://gmm.by';
   return {
-    title: `${article.title} | ГММ`,
+    title: `${article.title}`,
     description: article.description || article.contentHtml.replace(/<[^>]*>/g, '').slice(0, 160),
     openGraph: {
       title: article.title,
       description: article.description || '',
-      images: [article.imageUrl || '/images/og-default.jpg'],
+      images: [article.imageUrl || '/og-image.png'],
       type: 'article',
       authors: [article.author?.name || 'ГММ'],
     },

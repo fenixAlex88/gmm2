@@ -16,19 +16,19 @@ export const metadata: Metadata = {
   description: "Аўтарскія экскурсіі і сэнсавы турызм па Беларусі. Падарожжы з геніямі месца: гісторыя, культура і глыбокія сэнсы.",
   keywords: ["турызм па Беларусі", "экскурсіі Мінск", "геній месца", "сэнсавы турызм", "гісторыя Беларусі"],
   authors: [{ name: "ГММ" }],
-  metadataBase: new URL('https://gmm.by'), // Замяніце на ваш рэальны дамен
+  metadataBase: new URL('https://gmm.by'),
   openGraph: {
     title: "Геній майго месца — Сэнсавыя падарожжы па Беларусі",
     description: "Адкрыйце Беларусь праз сэнсы і гісторыі выдатных людзей.",
     url: 'https://gmm.by',
     siteName: 'GMM.BY',
-    // images: [
-    //   {
-    //     url: '/og-image.jpg', // Стварыце карцінку 1200x630 для сацсетак
-    //     width: 1200,
-    //     height: 630,
-    //   },
-    // ],
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+      },
+    ],
     locale: 'be_BY',
     type: 'website',
   },
@@ -38,7 +38,7 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: '/favicon.ico',
-    // apple: '/apple-touch-icon.png',
+    apple: '/apple-touch-icon.png',
   },
 };
 
@@ -52,9 +52,9 @@ export default function RootLayout({
         <div className="flex flex-col flex-1 min-h-screen">
           <Header />
           <NavigationBar />
-            <Providers>
-              {children}
-            </Providers>
+          <Providers>
+            {children}
+          </Providers>
           <ScrollToTopButton />
           <Footer />
         </div>
